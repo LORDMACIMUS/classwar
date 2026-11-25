@@ -1,0 +1,3863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classroom Command — Visual Seating & Weekly Jobs Manager</title>
+  <style>
+    /* =========================================================================
+       1. DESIGN TOKENS & BASE STYLES (100% PURE HTML/CSS, ZERO EXTERNAL CDNS)
+       ========================================================================= */
+    :root {
+      --bg-cream: #FAF6F0;
+      --surface: #FFFFFF;
+      --peach-50: #FFF8F4;
+      --peach-100: #FDECE2;
+      --peach-200: #FAD5C0;
+      --peach-300: #F5B895;
+      --peach-400: #EE9364;
+      --peach-500: #E6733C;
+      --peach-600: #C95B26;
+      --sage-100: #E3ECE6;
+      --sage-500: #4D8063;
+      --sage-600: #3A664D;
+      --indigo-50: #EEF2FF;
+      --indigo-100: #E0E7FF;
+      --indigo-600: #4F46E5;
+      --indigo-700: #4338CA;
+      --amber-100: #FEF3C7;
+      --amber-400: #FBBF24;
+      --amber-700: #B45309;
+      --rose-100: #FFE4E6;
+      --rose-600: #E11D48;
+      --ink: #242120;
+      --muted: #68625E;
+      --border: #E8DCD3;
+      --shadow-xs: 0 1px 3px rgba(36, 33, 32, 0.06);
+      --shadow-md: 0 8px 24px rgba(36, 33, 32, 0.12);
+      --shadow-lg: 0 16px 36px rgba(36, 33, 32, 0.18);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--bg-cream);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =========================================================================
+       2. HEADER & NAVIGATION TABS
+       ========================================================================= */
+    .app-header {
+      background: rgba(255, 255, 255, 0.98);
+      border-bottom: 1.5px solid var(--peach-200);
+      position: sticky;
+      top: 0;
+      z-index: 60;
+    }
+
+    .container {
+      max-width: 1540px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .header-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--peach-400), var(--peach-500));
+      color: #FFFFFF;
+      font-weight: 900;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-sub {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--sage-100);
+      color: var(--sage-600);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-monday {
+      background: linear-gradient(135deg, #059669, #10B981);
+      color: #FFFFFF;
+      padding: 9px 15px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.32);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-monday:hover {
+      background: linear-gradient(135deg, #047857, #059669);
+    }
+
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      background: var(--peach-50);
+      padding: 4px;
+      border-radius: 15px;
+      border: 1.5px solid var(--peach-200);
+    }
+
+    .nav-tab-btn {
+      padding: 7px 13px;
+      border-radius: 11px;
+      font-size: 12.5px;
+      font-weight: 800;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .nav-tab-btn:hover {
+      color: var(--ink);
+    }
+
+    .nav-tab-btn.active {
+      background: #FFFFFF;
+      color: var(--ink);
+      box-shadow: var(--shadow-xs);
+    }
+
+    .main-area {
+      flex: 1;
+      padding: 16px 0 48px;
+    }
+
+    /* =========================================================================
+       3. CARDS, TOOLBARS, BUTTONS & ROSTER DOCK
+       ========================================================================= */
+    .card {
+      background: var(--surface);
+      border: 1.5px solid var(--peach-200);
+      border-radius: 20px;
+      padding: 13px 16px;
+      box-shadow: var(--shadow-xs);
+      margin-bottom: 12px;
+    }
+
+    .recovery-banner {
+      background: linear-gradient(90deg, #ECFDF5, #FEF3C7);
+      border: 2px solid #10B981;
+      border-radius: 18px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .plan-banner {
+      background: linear-gradient(95deg, var(--peach-100) 0%, #FFFFFF 50%, var(--indigo-50) 100%);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .pill-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      background: #FFFFFF;
+      padding: 4px;
+      border-radius: 15px;
+      border: 1px solid var(--peach-200);
+    }
+
+    .pill-group.muted-bg {
+      background: var(--peach-100);
+    }
+
+    .pill-btn {
+      padding: 8px 13px;
+      border-radius: 11px;
+      font-size: 12.5px;
+      font-weight: 800;
+      background: transparent;
+      color: #4B4643;
+    }
+
+    .pill-btn.active-working {
+      background: var(--peach-500);
+      color: #FFFFFF;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .pill-btn.active-teaching {
+      background: var(--indigo-600);
+      color: #FFFFFF;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .pill-btn.active-dark {
+      background: var(--ink);
+      color: #FFFFFF;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 8px 13px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-peach { background: var(--peach-500); color: #FFFFFF; }
+    .btn-peach:hover { background: var(--peach-400); }
+    .btn-indigo { background: var(--indigo-600); color: #FFFFFF; }
+    .btn-indigo:hover { background: var(--indigo-700); }
+    .btn-sage { background: var(--sage-500); color: #FFFFFF; }
+    .btn-sage:hover { background: var(--sage-600); }
+    .btn-light { background: #F4F1EE; color: var(--ink); border: 1px solid #E2DCD7; }
+    .btn-light:hover { background: #EAE4DF; }
+    .btn-amber { background: var(--amber-100); color: #78350F; border: 1px solid #FCD34D; }
+    .btn-amber:hover { background: #FDE68A; }
+    .btn-rose { background: var(--rose-100); color: #9F1239; border: 1px solid #FDA4AF; }
+    .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 10px; }
+
+    .toolbar-divider {
+      border-top: 1px solid var(--peach-100);
+      margin-top: 10px;
+      padding-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .selection-prompt-bar {
+      background: linear-gradient(90deg, #FEF3C7, #FDE68A);
+      border: 2px solid #F59E0B;
+      border-radius: 16px;
+      padding: 10px 16px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #78350F;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--peach-200);
+      border-radius: 16px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .stat-value {
+      font-size: 15px;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+
+    .stat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    /* Roster Bar directly above Floorplan */
+    .roster-dock {
+      background: #FFFFFF;
+      border: 1.5px solid var(--peach-200);
+      border-radius: 16px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+    }
+
+    .roster-dock-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .roster-dock-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .roster-pill {
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 1.5px solid transparent;
+    }
+
+    .roster-pill.unseated {
+      background: var(--peach-100);
+      color: var(--peach-600);
+      border-color: var(--peach-300);
+    }
+
+    .roster-pill.unseated:hover {
+      background: var(--peach-200);
+    }
+
+    .roster-pill.seated {
+      background: #F4F2F0;
+      color: #57534E;
+      border-color: #E7E5E4;
+    }
+
+    .roster-pill.seated:hover {
+      background: #E7E5E4;
+    }
+
+    .roster-pill.selected {
+      background: #FEF3C7;
+      color: #78350F;
+      border-color: #F59E0B;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+    }
+
+    /* =========================================================================
+       4. SIDE-BY-SIDE FLOORPLAN + QUICK-ASSIGN & EDIT PANEL LAYOUT
+       ========================================================================= */
+    .floorplan-workspace {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .floorplan-main-col {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .quick-assign-sidebar {
+      width: 350px;
+      flex-shrink: 0;
+      background: #FFFFFF;
+      border: 2px solid var(--peach-200);
+      border-radius: 22px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      max-height: 1160px;
+      position: sticky;
+      top: 74px;
+    }
+
+    .quick-assign-header {
+      padding: 13px 15px;
+      background: linear-gradient(135deg, var(--peach-100), var(--indigo-50));
+      border-bottom: 1.5px solid var(--peach-200);
+      border-radius: 20px 20px 0 0;
+    }
+
+    .quick-assign-body {
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .qa-zone-card {
+      background: #FAF8F6;
+      border: 1.5px solid #E5DFD9;
+      border-radius: 15px;
+      padding: 10px 12px;
+    }
+
+    .qa-zone-card.couch-card {
+      background: #EEF2FF;
+      border-color: #C7D2FE;
+    }
+
+    .qa-zone-card.bag-card {
+      background: #FFFDF9;
+      border-color: var(--peach-300);
+    }
+
+    .qa-zone-card.pillow-card {
+      background: #FFFBEB;
+      border-color: #FDE68A;
+    }
+
+    .qa-zone-title {
+      font-size: 13px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .qa-seat-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .qa-seat-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .qa-seat-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      width: 56px;
+      flex-shrink: 0;
+    }
+
+    .qa-select {
+      flex: 1;
+      min-width: 0;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1.5px solid #D6CEC7;
+      background: #FFFFFF;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .qa-select.assigned {
+      border-color: #10B981;
+      background: #ECFDF5;
+      color: #065F46;
+    }
+
+    @media (max-width: 1180px) {
+      .floorplan-workspace {
+        flex-direction: column;
+      }
+      .quick-assign-sidebar {
+        width: 100%;
+        position: static;
+        max-height: none;
+      }
+    }
+
+    /* =========================================================================
+       5. PURE HTML/CSS FURNITURE SHAPES & 1140px x 1160px FLOORPLAN CANVAS
+       ========================================================================= */
+    .floorplan-scroll {
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .floorplan-stage {
+      position: relative;
+      width: 1140px;
+      height: 1160px;
+      margin: 0 auto;
+      background-color: #FFFDF9;
+      background-image: radial-gradient(#E5D4C6 1.35px, transparent 1.35px);
+      background-size: 24px 24px;
+      border-radius: 26px;
+      border: 2px solid var(--peach-200);
+      box-shadow: inset 0 2px 14px rgba(230, 115, 60, 0.06);
+      user-select: none;
+      touch-action: none;
+    }
+
+    .stage-banner-top, .stage-banner-bottom {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #8C837D;
+    }
+
+    .stage-banner-top { top: 10px; }
+    .stage-banner-bottom { bottom: 10px; }
+
+    .furniture-node {
+      position: absolute;
+      transform-origin: center center;
+      transition: box-shadow 0.15s ease;
+    }
+
+    .furniture-node.arrange-cursor {
+      cursor: grab;
+    }
+
+    .furniture-node.arrange-cursor:active {
+      cursor: grabbing;
+    }
+
+    .furniture-node.selected-piece {
+      z-index: 38 !important;
+      filter: drop-shadow(0 8px 20px rgba(230, 115, 60, 0.42));
+    }
+
+    /* Pure CSS Trapezoid Table */
+    .shape-trapezoid-outer {
+      width: 100%;
+      height: 100%;
+      background: #E6733C;
+      clip-path: polygon(16% 0%, 84% 0%, 100% 100%, 0% 100%);
+      padding: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shape-trapezoid-inner {
+      width: 100%;
+      height: 100%;
+      background: #FDECE2;
+      clip-path: polygon(16% 0%, 84% 0%, 100% 100%, 0% 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .furniture-tag {
+      background: rgba(255, 255, 255, 0.96);
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 900;
+      white-space: nowrap;
+      pointer-events: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    /* Pure CSS Large 3-Circled Splat Table */
+    .shape-splat-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .splat-lobe {
+      position: absolute;
+      width: 106px;
+      height: 106px;
+      border-radius: 50%;
+      background: #E3ECE6;
+      border: 3px solid #3A664D;
+    }
+
+    .splat-lobe.top { top: 6px; left: 52px; }
+    .splat-lobe.bl { bottom: 8px; left: 12px; }
+    .splat-lobe.br { bottom: 8px; right: 12px; }
+
+    .splat-bridge {
+      position: absolute;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: #E3ECE6;
+      top: 56px;
+      left: 57px;
+    }
+
+    /* Pure CSS Quarter-Circle Couch */
+    .shape-quarter-couch {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #E0E7FF;
+      border: 3px solid #4F46E5;
+      border-radius: 100% 22px 22px 22px;
+      box-shadow: inset 12px 12px 0 #C7D2FE;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 12px;
+    }
+
+    /* Pure CSS Color-Coded Bean Bags (Sized cleanly for 2 stacked seat pills!) */
+    .shape-beanbag {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border-width: 3.5px;
+      border-style: solid;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 8px;
+      box-shadow: inset 0 -6px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .bag-red { background: #FEE2E2; border-color: #EF4444; color: #991B1B; }
+    .bag-vangogh {
+      background: radial-gradient(circle at 26% 28%, #FDE047 0%, #FDE047 4%, transparent 5%),
+                  radial-gradient(circle at 76% 26%, #FACC15 0%, #FACC15 3.5%, transparent 4.5%),
+                  radial-gradient(circle at 32% 76%, #60A5FA 0%, #2563EB 25%, #1E3A8A 65%);
+      border-color: #FBBF24;
+      color: #FEF08A;
+    }
+    .bag-blue { background: #DBEAFE; border-color: #3B82F6; color: #1E40AF; }
+    .bag-orange { background: #FFEDD5; border-color: #F97316; color: #9A3412; }
+    .bag-green { background: #DCFCE7; border-color: #22C55E; color: #166534; }
+    .bag-beigegreen { background: #E9ECE0; border-color: #84926E; color: #3D4530; }
+
+    .bag-title-pill {
+      font-size: 9px;
+      font-weight: 900;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: inherit;
+      pointer-events: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    }
+
+    .bag-vangogh .bag-title-pill {
+      background: rgba(30, 58, 138, 0.95);
+      color: #FDE047;
+      border: 1px solid #FBBF24;
+    }
+
+    /* Pure CSS Lounge Rug */
+    .shape-rug {
+      width: 100%;
+      height: 100%;
+      background: #F5EFE6;
+      border: 2.5px dashed #A8A29E;
+      border-radius: 20px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 8px;
+    }
+
+    /* Pure CSS Floor Pillow */
+    .shape-pillow {
+      width: 100%;
+      height: 100%;
+      background: #FEF3C7;
+      border: 2.5px solid #D97706;
+      border-radius: 16px;
+      box-shadow: inset 0 0 0 3px rgba(251, 191, 36, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 4px;
+    }
+
+    /* Green On-Piece Rotation Handle */
+    .rotate-stem {
+      position: absolute;
+      left: 50%;
+      top: -30px;
+      width: 3px;
+      height: 30px;
+      background: #10B981;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .rotate-knob {
+      position: absolute;
+      left: 50%;
+      top: -48px;
+      width: 30px;
+      height: 30px;
+      margin-left: -15px;
+      border-radius: 999px;
+      background: #10B981;
+      border: 2.5px solid #FFFFFF;
+      color: #FFFFFF;
+      font-size: 15px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.48);
+      cursor: grab;
+      z-index: 55;
+    }
+
+    .rotate-knob:hover {
+      background: #059669;
+    }
+
+    /* High-Contrast Seat Pills & Prominent "+ Add Name" Buttons */
+    @keyframes pulseRing {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.95); }
+      50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.25); }
+    }
+
+    @keyframes readyTargetPulse {
+      0%, 100% { border-color: #10B981; background: #ECFDF5; }
+      50% { border-color: #059669; background: #D1FAE5; }
+    }
+
+    .seat-pill {
+      position: absolute;
+      z-index: 30;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 2px solid #CBD5E1;
+      background: #FFFFFF;
+      color: var(--ink);
+      font-size: 11.5px;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+      cursor: pointer;
+    }
+
+    .seat-pill:hover {
+      z-index: 58 !important;
+      filter: brightness(0.95);
+    }
+
+    /* Prominent "+ Add Name" button for empty seats on Couches, Bean Bags, Pillows & Tables */
+    .seat-pill.empty-spot {
+      background: #FFFFFF;
+      border: 2px dashed #4F46E5;
+      color: #3730A3;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 900;
+      box-shadow: 0 3px 10px rgba(79, 70, 229, 0.22);
+    }
+
+    .seat-pill.empty-spot.table-empty {
+      border-color: #E6733C;
+      color: #C95B26;
+      box-shadow: 0 3px 10px rgba(230, 115, 60, 0.2);
+    }
+
+    .seat-pill.empty-spot.awaiting-placement {
+      animation: readyTargetPulse 1.2s infinite;
+      color: #065F46;
+      border-style: solid;
+    }
+
+    .seat-pill.wobbly-spot {
+      background: #FEF3C7;
+      border-color: #F59E0B;
+      color: #78350F;
+    }
+
+    .seat-pill.teaching-spot {
+      background: #EEF2FF;
+      border-color: #4F46E5;
+      color: #1E1B4B;
+    }
+
+    .seat-pill.conflict-spot {
+      background: #FFE4E6;
+      border-color: #E11D48;
+      color: #881337;
+      box-shadow: 0 0 0 2.5px #FB7185;
+    }
+
+    .seat-pill.selected-seat {
+      animation: pulseRing 1.15s infinite;
+      border-color: #D97706;
+      background: #FEF3C7;
+      color: #78350F;
+      z-index: 55 !important;
+    }
+
+    .chair-toggle-dot {
+      width: 17px;
+      height: 17px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9.5px;
+      font-weight: 900;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .chair-toggle-dot.wobbly {
+      background: #FBBF24;
+      color: #451A03;
+    }
+
+    .chair-toggle-dot.blue {
+      background: #0EA5E9;
+      color: #FFFFFF;
+    }
+
+    .unassign-x {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.1);
+      color: #334155;
+      font-size: 11.5px;
+      font-weight: 900;
+      padding: 0;
+      margin-left: 2px;
+      line-height: 1;
+    }
+
+    .unassign-x:hover {
+      background: #E11D48;
+      color: #FFFFFF;
+    }
+
+    .legend-bar {
+      background: #FFFFFF;
+      border: 1.5px solid var(--peach-200);
+      border-radius: 16px;
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .legend-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dot-swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    /* =========================================================================
+       6. STUDENT PICKER MODAL & STORAGE SCANNER MODAL
+       ========================================================================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(24, 24, 27, 0.55);
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: #FFFFFF;
+      border-radius: 24px;
+      max-width: 520px;
+      width: 100%;
+      padding: 22px;
+      box-shadow: var(--shadow-lg);
+      border: 1.5px solid var(--peach-200);
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+
+    .picker-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      max-height: 270px;
+      overflow-y: auto;
+      margin-top: 10px;
+      padding-right: 4px;
+    }
+
+    .picker-student-btn {
+      text-align: left;
+      padding: 9px 12px;
+      border-radius: 12px;
+      border: 1.5px solid var(--peach-200);
+      background: var(--peach-50);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .picker-student-btn:hover {
+      background: var(--peach-200);
+    }
+
+    .picker-student-btn.already-seated {
+      background: #F4F2F0;
+      border-color: #E2DCD7;
+      color: #57534E;
+    }
+
+    /* =========================================================================
+       7. WEEKLY CLASS JOBS, ROSTER EDITOR & PROJECTOR DISPLAY
+       ========================================================================= */
+    .jobs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .job-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--peach-200);
+      border-radius: 22px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .job-select {
+      width: 100%;
+      max-width: 240px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1.5px solid var(--peach-200);
+      background: var(--peach-50);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 8px;
+    }
+
+    .job-icon-box {
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 28px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .badge-sage { background: var(--sage-100); color: var(--sage-600); }
+    .badge-amber { background: var(--amber-100); color: var(--amber-700); }
+    .badge-peach { background: var(--peach-100); color: var(--peach-600); }
+
+    .poster-board {
+      position: relative;
+      overflow: hidden;
+      border-radius: 34px;
+      background: #FAD7C3;
+      padding: 28px 20px 36px;
+      border: 4px solid #FFFFFF;
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 18px;
+    }
+
+    .poster-blob-1 {
+      position: absolute;
+      top: -60px;
+      left: -60px;
+      width: 260px;
+      height: 260px;
+      background: rgba(244, 190, 158, 0.75);
+      border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+      pointer-events: none;
+    }
+
+    .poster-blob-2 {
+      position: absolute;
+      bottom: -70px;
+      right: -50px;
+      width: 300px;
+      height: 300px;
+      background: rgba(244, 190, 158, 0.75);
+      border-radius: 61% 39% 33% 67% / 58% 49% 51% 42%;
+      pointer-events: none;
+    }
+
+    .poster-heading {
+      text-align: center;
+      margin: 0 0 6px;
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #18181B;
+      text-shadow: 2px 3px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .poster-subpill {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 5px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #44403C;
+    }
+
+    .poster-jobs-grid {
+      max-width: 940px;
+      margin: 20px auto 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .poster-job-tile {
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .poster-job-name {
+      font-size: 18px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .poster-student-pill {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 4px 14px;
+      border-radius: 12px;
+      background: #FFF3EB;
+      color: #D95D24;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .history-table-wrap { overflow-x: auto; }
+    table.history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    table.history-table th {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--peach-200);
+      color: var(--muted);
+      font-weight: 800;
+    }
+    table.history-table td {
+      padding: 9px 12px;
+      border-bottom: 1px solid #F1ECE6;
+    }
+
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 18px;
+    }
+
+    .input-field, .textarea-field {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 12px;
+      border: 1.5px solid var(--peach-200);
+      background: var(--peach-50);
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .roster-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 4px 0;
+    }
+
+    .student-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      border-radius: 12px;
+      background: var(--peach-50);
+      border: 1.5px solid var(--peach-200);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .student-chip input {
+      border: none;
+      background: transparent;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .sep-card {
+      background: #FAF8F6;
+      border: 1.5px solid #E5DFD9;
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+
+    /* Projector Display Zones */
+    .projector-zones-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .proj-zone-card {
+      background: #FFFFFF;
+      border: 2px solid var(--peach-200);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-xs);
+    }
+
+    /* Toast Stack */
+    .toast-stack {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 160;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast-item {
+      padding: 11px 16px;
+      border-radius: 14px;
+      color: #FFFFFF;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: var(--shadow-md);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #FFFFFF !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container" class="toast-stack"></div>
+
+  <!-- Direct Click-to-Assign Student Picker Modal (Also allows typing a new name!) -->
+  <div id="student-picker-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+        <h3 id="picker-modal-title" style="margin:0; font-size:18px; font-weight:800;">Assign Student to Seat</h3>
+        <button class="btn btn-light btn-sm" onclick="closeStudentPickerModal()">✕</button>
+      </div>
+      <p id="picker-modal-sub" style="margin:0 0 10px; font-size:12.5px; color:var(--muted);">
+        Click any student below to place them right into this spot, or type a brand-new student name:
+      </p>
+
+      <!-- Type-a-New-Name On-The-Fly Row -->
+      <div style="display:flex; gap:8px; margin-bottom:10px;">
+        <input id="picker-new-name-input" class="input-field" type="text" placeholder="Or type a new student name & press Enter..." onkeydown="if(event.key==='Enter') createAndAssignFromPicker()">
+        <button class="btn btn-sage btn-sm" onclick="createAndAssignFromPicker()">+ Add &amp; Seat</button>
+      </div>
+
+      <input id="picker-search-input" class="input-field" type="text" placeholder="Filter existing roster..." oninput="renderStudentPickerList()">
+      <div id="picker-student-list" class="picker-grid"></div>
+
+      <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+        <button class="btn btn-light btn-sm" onclick="closeStudentPickerModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Browser Storage Scanner & Recovery Modal -->
+  <div id="storage-scanner-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
+        <h3 style="margin:0; font-size:18px; font-weight:800;">🔍 Scan Browser Storage for Saved Rosters</h3>
+        <button class="btn btn-light btn-sm" onclick="closeStorageScannerModal()">✕</button>
+      </div>
+      <p style="margin:0 0 12px; font-size:12.5px; color:var(--muted);">
+        Below are all saved classroom datasets found in this browser's storage. Click <strong>Recover This List</strong> on any snapshot to restore those names immediately.
+      </p>
+      <div id="storage-scanner-results" style="display:flex; flex-direction:column; gap:10px;"></div>
+      <div style="margin-top:16px; display:flex; justify-content:flex-end;">
+        <button class="btn btn-light btn-sm" onclick="closeStorageScannerModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Confirmation Modal -->
+  <div id="confirm-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <h3 id="confirm-title" style="margin:0 0 8px; font-size:18px; font-weight:800;">Confirm Action</h3>
+      <p id="confirm-message" style="margin:0 0 20px; font-size:14px; color:var(--muted);">Are you sure?</p>
+      <div class="btn-row" style="justify-content:flex-end;">
+        <button id="confirm-cancel-btn" class="btn btn-light">Cancel</button>
+        <button id="confirm-ok-btn" class="btn btn-peach">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header no-print">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-logo">CC</div>
+        <div>
+          <h1 class="brand-title">Classroom Command</h1>
+          <div class="brand-sub">
+            <span>Dual Seating Plans • Weekly Class Jobs</span>
+            <span id="diagnostic-pill" class="status-pill">✓ Ready • Auto-Saved</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-monday" onclick="mondayWeeklyRefresh()" title="Logs last week into history and generates a brand-new randomized layout for both spaces and all 10 class jobs!">
+          🗓️ Monday Weekly Refresh
+        </button>
+
+        <button class="btn btn-light btn-sm" onclick="exportBackup()" title="Download a .json backup file of your student names, rules, and custom floorplan to your computer">
+          💾 Export Backup (.json)
+        </button>
+
+        <label class="btn btn-light btn-sm" style="cursor:pointer;" title="Restore a previously saved .json backup file">
+          📂 Import Backup (.json)
+          <input type="file" accept=".json" class="hidden" onchange="importBackup(event)">
+        </label>
+
+        <nav class="nav-tabs" aria-label="Main Navigation">
+          <button id="tab-btn-floorplan" class="nav-tab-btn active" onclick="switchTab('floorplan')">🗺️ Floorplan &amp; Seats</button>
+          <button id="tab-btn-jobs" class="nav-tab-btn" onclick="switchTab('jobs')">⭐ Weekly Class Jobs</button>
+          <button id="tab-btn-roster" class="nav-tab-btn" onclick="switchTab('roster')">👥 Students &amp; Rules</button>
+          <button id="tab-btn-projector" class="nav-tab-btn" onclick="switchTab('projector')">📺 Projector Display</button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-area">
+
+    <!-- ===================================================================
+         TAB 1: FLOORPLAN & SEATS (WORKING SPACE + TEACHING SPACE + SIDEBAR)
+         =================================================================== -->
+    <section id="view-floorplan">
+
+      <!-- Automatic Recovery / Quick Roster Setup Notice -->
+      <div id="recovery-notice-bar" class="recovery-banner hidden no-print">
+        <div style="font-size:13px; font-weight:800; color:#065F46;" id="recovery-notice-text">
+          ✓ Automatically rescued your saved student roster from browser storage!
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-sage btn-sm" onclick="switchTab('roster')">📋 Edit / Paste Roster</button>
+          <button class="btn btn-light btn-sm" onclick="openStorageScannerModal()">🔍 Scan Storage</button>
+          <button class="btn btn-light btn-sm" onclick="document.getElementById('recovery-notice-bar').classList.add('hidden')">Dismiss</button>
+        </div>
+      </div>
+
+      <!-- Dual Seating Plan Switcher Banner -->
+      <div class="card plan-banner no-print">
+        <div class="btn-row">
+          <span style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted);">Primary Space Focus:</span>
+          <div class="pill-group">
+            <button id="plan-btn-working" class="pill-btn active-working" onclick="setSeatingPlanMode('working')">
+              📝 Working Space (Tables — 24 spots)
+            </button>
+            <button id="plan-btn-teaching" class="pill-btn" onclick="setSeatingPlanMode('teaching')">
+              🛋️ Teaching Space (Couches, 2-Seat Bean Bags &amp; Pillows — 27 spots)
+            </button>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-peach" onclick="autoAssignActivePlan()">✨ Randomize Active Plan</button>
+          <button class="btn btn-indigo" onclick="autoAssignBothPlans(false)">⚡ Randomize Both Plans</button>
+          <button class="btn btn-sage" onclick="lockAndLogHistory()">🔒 Lock &amp; Log History</button>
+          <button class="btn btn-light" onclick="window.print()">🖨 Print</button>
+        </div>
+      </div>
+
+      <!-- Floorplan Mode & Furniture Controls Toolbar -->
+      <div class="card no-print">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+          <div class="btn-row">
+            <div class="pill-group muted-bg">
+              <button id="mode-btn-seats" class="pill-btn active-dark" onclick="setFloorplanMode('seats')">
+                👥 Assign &amp; Swap Seats
+              </button>
+              <button id="mode-btn-arrange" class="pill-btn" onclick="setFloorplanMode('arrange')">
+                📐 Arrange &amp; Rotate Furniture
+              </button>
+            </div>
+            <span id="mode-helper-text" style="font-size:12.5px; color:var(--muted);">
+              All <strong>6 Bean Bags</strong> have <strong>2 seat spaces</strong> each! Click <strong>+ Add Name</strong> on any Couch, Bean Bag, Pillow, or Table—or use the dropdown panel on the right.
+            </span>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-amber btn-sm" onclick="switchTab('roster')">📋 Bulk Paste / Edit Names</button>
+
+            <div style="display:inline-flex; align-items:center; gap:6px; background:var(--amber-100); padding:5px 10px; border-radius:12px; border:1px solid #FCD34D;">
+              <span style="font-size:12px; font-weight:800; color:#78350F;">🪑 Pillows:</span>
+              <button class="btn btn-sm" style="background:#FFF; color:#78350F; border:1px solid #F59E0B; padding:3px 8px;" onclick="removeFloorPillow()">− Remove Pillow</button>
+              <span id="pillow-count-badge" style="font-size:13px; font-weight:900; color:#451A03; min-width:16px; text-align:center;">3</span>
+              <button class="btn btn-sm" style="background:#FFF; color:#78350F; border:1px solid #F59E0B; padding:3px 8px;" onclick="addFloorPillow()">+ Add Pillow</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rotation Toolbar (Visible in Arrange & Rotate Furniture mode) -->
+        <div id="arrange-toolbar" class="toolbar-divider hidden">
+          <div class="btn-row">
+            <span id="selected-piece-badge" class="badge badge-peach" style="padding:6px 12px; font-size:12px;">
+              Selected: Splat Table (0°)
+            </span>
+            <div style="display:inline-flex; align-items:center; gap:8px; background:#F8F6F4; padding:5px 12px; border-radius:12px; border:1px solid #E5DFD9;">
+              <label for="angle-slider" style="font-size:12px; font-weight:700; color:var(--muted);">Angle:</label>
+              <input id="angle-slider" type="range" min="0" max="359" value="0" oninput="setSelectedAngle(this.value)" style="width:120px; accent-color:#10B981;">
+              <span id="angle-readout" style="font-size:12px; font-weight:800; width:34px; text-align:right;">0°</span>
+            </div>
+            <button class="btn btn-light btn-sm" onclick="rotateSelectedBy(-15)">-15°</button>
+            <button class="btn btn-light btn-sm" onclick="rotateSelectedBy(15)">+15°</button>
+            <button class="btn btn-light btn-sm" onclick="rotateSelectedBy(45)">+45°</button>
+          </div>
+
+          <div class="btn-row">
+            <label style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--muted); cursor:pointer;">
+              <input id="grid-snap-toggle" type="checkbox" checked onchange="toggleGridSnap(this.checked)">
+              Snap to Grid (10px)
+            </label>
+            <button class="btn btn-amber btn-sm" onclick="resetFurnitureLayout()">Reset Default Layout</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Selection Prompt Banner -->
+      <div id="selection-prompt-bar" class="selection-prompt-bar hidden no-print">
+        <span id="selection-prompt-text">Selected: Liam — Click any couch, bean bag, pillow, or table seat to place/swap</span>
+        <button class="btn btn-sm" style="background:#78350F; color:#FFFFFF;" onclick="clearSelection()">Cancel Selection</button>
+      </div>
+
+      <!-- Inventory & Separation Stats Strip -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div>
+            <div class="stat-label">Working Space (Tables)</div>
+            <div id="stat-working" class="stat-value" style="color:var(--peach-600);">24 / 24 Seated</div>
+          </div>
+          <div class="stat-icon" style="background:var(--peach-100); color:var(--peach-600);">📝</div>
+        </div>
+
+        <div class="stat-card">
+          <div>
+            <div class="stat-label">Wobbly Chairs Active</div>
+            <div id="stat-wobbly" class="stat-value" style="color:var(--amber-700);">5 / 5 Active</div>
+          </div>
+          <div class="stat-icon" style="background:var(--amber-100); color:var(--amber-700);">⚡</div>
+        </div>
+
+        <div class="stat-card">
+          <div>
+            <div class="stat-label">Teaching Space (Lounge)</div>
+            <div id="stat-teaching" class="stat-value" style="color:var(--indigo-700);">24 / 27 Seated</div>
+          </div>
+          <div class="stat-icon" style="background:var(--indigo-100); color:var(--indigo-600);">🛋️</div>
+        </div>
+
+        <div class="stat-card">
+          <div>
+            <div class="stat-label">Separation Rules</div>
+            <div id="stat-separation" class="stat-value" style="color:var(--sage-600);">All Clear (0)</div>
+          </div>
+          <div id="stat-sep-icon" class="stat-icon" style="background:var(--sage-100); color:var(--sage-600);">✓</div>
+        </div>
+      </div>
+
+      <!-- Student Roster Bar directly above Floorplan -->
+      <div class="roster-dock no-print">
+        <div class="roster-dock-header">
+          <div>
+            <span id="roster-dock-title" style="font-size:12.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink);">
+              Student Roster Bar (Working Space):
+            </span>
+            <span style="font-size:12px; color:var(--muted); margin-left:6px;">
+              Click a student here to select them, or click any <strong>+ Add Name</strong> button directly on the couches, 2-seat bean bags, pillows, or tables
+            </span>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-light btn-sm" onclick="clearPlanSeats('working')">Clear Tables</button>
+            <button class="btn btn-light btn-sm" onclick="clearPlanSeats('teaching')">Clear Couches &amp; Bean Bags</button>
+          </div>
+        </div>
+        <div id="roster-dock-pills" class="roster-dock-pills"></div>
+      </div>
+
+      <!-- Side-by-Side Floorplan Canvas + Quick-Assign & Edit Sidebar -->
+      <div class="floorplan-workspace">
+
+        <!-- Left: 1140px x 1160px Interactive Floorplan -->
+        <div class="floorplan-main-col">
+          <div class="floorplan-scroll">
+            <div id="floorplan-stage" class="floorplan-stage">
+              <div class="stage-banner-top">
+                <span>Front Whiteboard / Projector Wall (Working Space Tables)</span>
+                <span>10 Trapezoids • 1 Splat Table • 3 Quarter-Circle Couches • 6 Two-Seat Bean Bags • Floor Pillows</span>
+              </div>
+              <div class="stage-banner-bottom">
+                <span style="color:var(--indigo-600);">Teaching Carpet &amp; Circle Lounge (2 Seat Spaces per Bean Bag • 4 per Couch)</span>
+                <span id="stage-plan-indicator" style="color:var(--peach-600);">Primary Focus: Working Space (Tables)</span>
+              </div>
+              <div id="furniture-layer"></div>
+            </div>
+          </div>
+
+          <!-- Color & Chair Legend Bar -->
+          <div class="legend-bar">
+            <div class="legend-group">
+              <span style="color:#92400E;">⚡ Wobbly Chair (5)</span>
+              <span style="color:#0369A1;"><span class="dot-swatch" style="background:#0EA5E9;"></span>Blue Chair (19)</span>
+              <span style="color:#3730A3;"><span class="dot-swatch" style="background:#4F46E5;"></span>Quarter-Circle Couch (4 each)</span>
+              <span style="color:#92400E;"><span class="dot-swatch" style="background:#D97706;"></span>Floor Pillow</span>
+            </div>
+            <div class="legend-group">
+              <span><span class="dot-swatch" style="background:#EF4444;"></span>Red (2)</span>
+              <span><span class="dot-swatch" style="background:linear-gradient(135deg,#1E3A8A,#FBBF24);"></span>Van Gogh Starry Night (2)</span>
+              <span><span class="dot-swatch" style="background:#3B82F6;"></span>Blue (2)</span>
+              <span><span class="dot-swatch" style="background:#F97316;"></span>Orange (2)</span>
+              <span><span class="dot-swatch" style="background:#22C55E;"></span>Green (2)</span>
+              <span><span class="dot-swatch" style="background:#84926E;"></span>Beige-Green (2)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Dedicated Quick-Assign & Edit Seats Dropdown Sidebar -->
+        <aside class="quick-assign-sidebar no-print">
+          <div class="quick-assign-header">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px;">
+              <h3 style="margin:0; font-size:15px; font-weight:900;">Quick-Assign &amp; Edit Seats</h3>
+              <span class="badge badge-sage">Live Sync</span>
+            </div>
+            <div class="pill-group" style="width:100%; display:grid; grid-template-columns:1fr 1fr;">
+              <button id="qa-tab-teaching" class="pill-btn active-teaching" onclick="setQuickAssignFilter('teaching')" style="text-align:center;">
+                🛋️ Couches &amp; Bags
+              </button>
+              <button id="qa-tab-working" class="pill-btn" onclick="setQuickAssignFilter('working')" style="text-align:center;">
+                📝 Tables (24)
+              </button>
+            </div>
+          </div>
+          <div id="quick-assign-body" class="quick-assign-body"></div>
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         TAB 2: WEEKLY CLASS JOBS
+         =================================================================== -->
+    <section id="view-jobs" class="hidden">
+      <div class="card no-print" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <h2 style="margin:0; font-size:19px; font-weight:800;">Weekly Classroom Jobs</h2>
+            <span id="jobs-locked-badge" class="badge badge-sage hidden">✓ Week Locked</span>
+          </div>
+          <p style="margin:4px 0 0; font-size:13px; color:var(--muted);">
+            Rotates all 10 jobs each week, prioritizing students who have never held that task and did not have a job last week.
+          </p>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-peach" onclick="spinWeeklyJobs(false)">🎲 Spin Weekly Jobs</button>
+          <button class="btn btn-sage" onclick="lockWeeklyJobs()">🔒 Lock Week's Jobs</button>
+          <button class="btn btn-light" onclick="window.print()">🖨 Print Jobs</button>
+        </div>
+      </div>
+
+      <!-- Interactive 10 Job Editor Cards -->
+      <div id="jobs-grid" class="jobs-grid"></div>
+
+      <!-- Rotation History Matrix -->
+      <div class="card no-print">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+          <div>
+            <h3 style="margin:0; font-size:16px; font-weight:800;">Student Rotation &amp; Fairness Memory</h3>
+            <p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Tracks Wobbly Chairs, Teaching Space seats, and completed jobs across weeks.</p>
+          </div>
+          <span id="weeks-logged-badge" class="badge badge-peach" style="padding:5px 12px; font-size:12px;">0 Weeks Logged</span>
+        </div>
+
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Jobs Done</th>
+                <th>Working (Wobbly / Blue)</th>
+                <th>Teaching (Couch / Bean Bag / Pillow)</th>
+                <th>Completed Job Badges</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         TAB 3: STUDENTS & RULES (BULK PASTE, STORAGE RECOVERY & SEPARATION)
+         =================================================================== -->
+    <section id="view-roster" class="hidden">
+      <div class="two-col-grid">
+        <!-- Left Column: Bulk Paste, Inline Edit & Next Year Reset -->
+        <div class="card">
+          <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+            <div>
+              <h2 style="margin:0; font-size:18px; font-weight:800;">Class Roster (<span id="roster-count">24</span>)</h2>
+              <p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Paste all 24 names at once below, or click any student chip to edit inline.</p>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-sage btn-sm" onclick="openStorageScannerModal()">🔍 Scan Browser Storage</button>
+              <button class="btn btn-amber btn-sm" onclick="startNewClassNextYear()">🆕 Start New Class (Next Year)</button>
+            </div>
+          </div>
+
+          <!-- Bulk Paste Roster Box (Right at the top for immediate pasting!) -->
+          <div style="background:var(--peach-50); border:2px solid var(--peach-300); border-radius:16px; padding:12px; margin-bottom:14px;">
+            <label style="display:block; font-size:12.5px; font-weight:900; margin-bottom:6px; color:var(--peach-600);">
+              📋 Bulk Paste / Edit Roster (Paste all 24 student names separated by commas or new lines)
+            </label>
+            <textarea id="bulk-names-input" class="textarea-field" rows="4" placeholder="Paste your class list here (e.g. Liam, Noah, Oliver, Emma, Ava...)"></textarea>
+            <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-top:8px;">
+              <button class="btn btn-light btn-sm" onclick="populateTextareaWithCurrentRoster()">Load Current List Into Box</button>
+              <div class="btn-row">
+                <button class="btn btn-light btn-sm" onclick="bulkImportRoster(false)">Append Names</button>
+                <button class="btn btn-peach btn-sm" onclick="bulkImportRoster(true)">✓ Save Roster (Replace List)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Single Student -->
+          <div style="display:flex; gap:8px; margin-bottom:12px;">
+            <input id="single-name-input" class="input-field" type="text" placeholder="Add single student name..." onkeydown="if(event.key==='Enter') addSingleStudent()">
+            <button class="btn btn-sage" onclick="addSingleStudent()">+ Add</button>
+          </div>
+
+          <!-- Inline Editable Student Chips -->
+          <div id="roster-chips-list" class="roster-chips"></div>
+        </div>
+
+        <!-- Right Column: Separation Groups & Backup -->
+        <div>
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+              <div>
+                <h2 style="margin:0; font-size:18px; font-weight:800;">"Keep Separate" Groups</h2>
+                <p style="margin:2px 0 0; font-size:12px; color:var(--muted);">Never placed at the same table, on the same couch, or sharing a 2-seat bean bag—and maximized for physical distance.</p>
+              </div>
+              <button class="btn btn-sage btn-sm" onclick="addSeparationGroup()">+ New Group</button>
+            </div>
+            <div id="separation-groups-list"></div>
+          </div>
+
+          <div class="card">
+            <h2 style="margin:0 0 4px; font-size:17px; font-weight:800;">Permanent File Backup &amp; Storage Recovery</h2>
+            <p id="storage-mode-caption" style="margin:0 0 12px; font-size:12px; color:var(--muted);">
+              Saves automatically in your browser. Export a .json backup file to your computer so you never lose your class list!
+            </p>
+            <div class="btn-row">
+              <button class="btn btn-peach btn-sm" onclick="exportBackup()">💾 Export Backup (.json)</button>
+              <label class="btn btn-light btn-sm" style="cursor:pointer;">
+                📂 Import Backup (.json)
+                <input type="file" accept=".json" class="hidden" onchange="importBackup(event)">
+              </label>
+              <button class="btn btn-sage btn-sm" onclick="openStorageScannerModal()">🔍 Scan Browser Storage</button>
+              <button class="btn btn-rose btn-sm" onclick="clearRotationHistory()">Clear History</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         TAB 4: PROJECTOR DISPLAY (READ-ONLY STUDENT BOARD)
+         =================================================================== -->
+    <section id="view-projector" class="hidden">
+      <div class="card no-print" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+        <div>
+          <h2 style="margin:0; font-size:18px; font-weight:800;">Classroom Projector Display</h2>
+          <p style="margin:2px 0 0; font-size:12.5px; color:var(--muted);">Clean, read-only view for projecting onto your classroom board.</p>
+        </div>
+
+        <div class="btn-row">
+          <div class="pill-group muted-bg">
+            <button id="proj-btn-split" class="pill-btn active-dark" onclick="setProjectorView('split')">Split View (Both)</button>
+            <button id="proj-btn-seats" class="pill-btn" onclick="setProjectorView('seats')">Seating Zones Only</button>
+            <button id="proj-btn-jobs" class="pill-btn" onclick="setProjectorView('jobs')">Class Jobs Poster Only</button>
+          </div>
+          <button class="btn btn-light" onclick="window.print()">🖨 Print Board</button>
+        </div>
+      </div>
+
+      <!-- Projector Seating Zones Summary -->
+      <div id="projector-seats-section" class="card">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:14px;">
+          <h2 style="margin:0; font-size:20px; font-weight:900;">Today's Classroom Seating</h2>
+          <div class="pill-group muted-bg no-print">
+            <button id="proj-space-working" class="pill-btn active-working" onclick="setProjectorSpace('working')">📝 Working Space (Tables)</button>
+            <button id="proj-space-teaching" class="pill-btn" onclick="setProjectorSpace('teaching')">🛋️ Teaching Space (Lounge)</button>
+          </div>
+        </div>
+        <div id="projector-zones-grid" class="projector-zones-grid"></div>
+      </div>
+
+      <!-- Projector Warm Peach Class Jobs Poster -->
+      <div id="projector-jobs-section" class="poster-board">
+        <div class="poster-blob-1"></div>
+        <div class="poster-blob-2"></div>
+        <div style="text-align:center; position:relative; z-index:2;">
+          <h2 class="poster-heading">Class Jobs</h2>
+          <span id="proj-week-label" class="poster-subpill">Week #1 Classroom Crew</span>
+        </div>
+        <div id="proj-jobs-grid" class="poster-jobs-grid"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // =========================================================================
+    // 1. MULTI-KEY STORAGE MIGRATION, RECOVERY & SANDBOX-SAFE PERSISTENCE
+    // =========================================================================
+    const PRIMARY_STORAGE_KEY = 'classroom_command_v11';
+    const LEGACY_KEYS_PRIORITY = [
+      'classroom_command_v11',
+      'classroom_command_v10',
+      'classroomCommand_v10_fullSeats',
+      'classroom_command_stable_v1',
+      'classroomCommand_v9',
+      'classroomCommand_v8',
+      'classroomCommand_v7',
+      'classroomCommand_v6',
+      'classroomCommand_v5',
+      'classroomCommand_v4',
+      'classroomCommand_v3',
+      'classroomCommand_v2',
+      'classroomCommand_v1'
+    ];
+
+    let memoryFallbackStore = {};
+    let usingMemoryFallback = false;
+
+    function safeStorageGet(key) {
+      try {
+        const val = window.localStorage.getItem(key);
+        return val !== null ? val : (memoryFallbackStore[key] || null);
+      } catch (e) {
+        usingMemoryFallback = true;
+        return memoryFallbackStore[key] || null;
+      }
+    }
+
+    function safeStorageSet(key, val) {
+      memoryFallbackStore[key] = val;
+      try {
+        window.localStorage.setItem(key, val);
+      } catch (e) {
+        usingMemoryFallback = true;
+      }
+    }
+
+    function isDefaultSampleRoster(rosterArr) {
+      if (!Array.isArray(rosterArr) || rosterArr.length !== DEFAULT_ROSTER_24.length) return false;
+      return rosterArr.every((name, idx) => name === DEFAULT_ROSTER_24[idx]);
+    }
+
+    function scanAllBrowserClassroomKeys() {
+      const found = [];
+      try {
+        const allKeys = new Set(LEGACY_KEYS_PRIORITY);
+        for (let i = 0; i < window.localStorage.length; i++) {
+          const k = window.localStorage.key(i);
+          if (k && k.toLowerCase().includes('classroom')) {
+            allKeys.add(k);
+          }
+        }
+
+        allKeys.forEach(key => {
+          const raw = window.localStorage.getItem(key);
+          if (!raw) return;
+          try {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.roster) && parsed.roster.length > 0) {
+              found.push({
+                key: key,
+                data: parsed,
+                isCustom: !isDefaultSampleRoster(parsed.roster),
+                count: parsed.roster.length,
+                preview: parsed.roster.slice(0, 6).join(', ')
+              });
+            }
+          } catch (e) {
+            // Skip malformed entry
+          }
+        });
+      } catch (e) {
+        usingMemoryFallback = true;
+      }
+      return found;
+    }
+
+    // =========================================================================
+    // 2. WEEKLY CLASS JOBS (10 JOBS FROM USER POSTER) & DEFAULT 24 ROSTER
+    // =========================================================================
+    const CLASS_JOBS = [
+      { id: 'siri',              title: 'Siri',                  desc: 'Answers quick class questions & keeps timers on track', bg: '#E0F2FE', icon: '🔊' },
+      { id: 'it_support',        title: 'IT Support',            desc: 'Troubleshoots laptops, chargers & classroom tech',       bg: '#F1F5F9', icon: '💻' },
+      { id: 'wellness',          title: 'Wellness Influencer',   desc: 'Leads brain breaks, stretches & positive check-ins',    bg: '#FFE4E6', icon: '🧘' },
+      { id: 'amazon_prime',      title: 'Amazon Prime',          desc: 'Delivers papers, supplies & messages around the room',  bg: '#FFEDD5', icon: '📦' },
+      { id: 'arborist',          title: 'Arborist',              desc: 'Waters classroom plants & cares for nature corners',    bg: '#DCFCE7', icon: '🌳' },
+      { id: 'hr',                title: 'Human Resources',       desc: 'Welcomes guests & helps resolve peer conflicts',        bg: '#FEF3C7', icon: '🤝' },
+      { id: 'security',          title: 'Security',              desc: 'Checks doors, lights & line safety during transitions', bg: '#E2E8F0', icon: '🛡️' },
+      { id: 'paparazzi',         title: 'Paparazzi',             desc: 'Captures photos of class projects & celebrations',      bg: '#F3E8FF', icon: '📸' },
+      { id: 'librarian',         title: 'Librarian of the Realm',desc: 'Organizes classroom bookshelves & reading nooks',       bg: '#FCE7F3', icon: '📚' },
+      { id: 'creative_director', title: 'Creative Director',     desc: 'Curates bulletin boards, visuals & art supplies',       bg: '#CCFBF1', icon: '🎨' }
+    ];
+
+    const DEFAULT_ROSTER_24 = [
+      'Liam', 'Noah', 'Oliver', 'Elijah', 'Mateo', 'Lucas',
+      'Emma', 'Ava', 'Sophia', 'Isabella', 'Mia', 'Charlotte',
+      'Amelia', 'Harper', 'Evelyn', 'Abigail', 'Emily', 'Ella',
+      'James', 'Benjamin', 'Henry', 'Sebastian', 'Jack', 'Owen'
+    ];
+
+    const DEFAULT_SEPARATION_GROUPS = [
+      {
+        id: 'sep_boys_6',
+        name: '6 Boys Group (Keep Separate)',
+        members: ['Liam', 'Noah', 'Oliver', 'Elijah', 'Mateo', 'Lucas']
+      }
+    ];
+
+    // =========================================================================
+    // 3. DEFAULT FURNITURE INVENTORY (10 TRAPS, SPLAT, 3 COUCHES, 6x2 BEAN BAGS)
+    // =========================================================================
+    function createDefaultFurniture() {
+      const makeTrapSeats = (wobblyIndices) => [
+        { workingStudent: null, chairType: wobblyIndices.includes(0) ? 'wobbly' : 'blue', rx: 48, ry: -20 },
+        { workingStudent: null, chairType: wobblyIndices.includes(1) ? 'wobbly' : 'blue', rx: 82, ry: 94 }
+      ];
+
+      return [
+        // 10 Individual Trapezoid Tables (2 outside-edge spots each = 20 Working Space spots)
+        { id: 'trap_1',  type: 'trapezoid', label: 'Trap 1',  x: 60,  y: 445, rot: 90,  w: 130, h: 74, space: 'working', category: 'table', seats: makeTrapSeats([0]) },
+        { id: 'trap_2',  type: 'trapezoid', label: 'Trap 2',  x: 60,  y: 265, rot: 90,  w: 130, h: 74, space: 'working', category: 'table', seats: makeTrapSeats([]) },
+        { id: 'trap_3',  type: 'trapezoid', label: 'Trap 3',  x: 110, y: 115, rot: 135, w: 130, h: 74, space: 'working', category: 'table', seats: makeTrapSeats([1]) },
+        { id: 'trap_4',  type: 'trapezoid', label: 'Trap 4',  x: 265, y: 65,  rot: 180, w: 130, h: 74, space: 'working', category: 'table', seats: makeTrapSeats([]) },
+        { id: 'trap_5',  type: 'trapezoid', label: 'Trap 5',  x: 440, y: 65,  rot: 0,   w: 130, h: 74, space: 'working', category: 'table', seats: makeTrapSeats([]) },
+
+        { id: 'trap_6',  type: 'trapezoid', label: 'Trap 6',  x: 645, y: 395, rot: 90,  w: 130, h: 74, space: 'working', category: 'table', seats: makeTrapSeats([0]) },
+        { id: 'trap_7',  type: 'trapezoid', label: 'Trap 7',  x: 695, y: 260, rot: 145, w: 130, h: 74, space: 'working', category: 'table', seats: makeTrapSeats([]) },
+        { id: 'trap_8',  type: 'trapezoid', label: 'Trap 8',  x: 845, y: 260, rot: 215, w: 130, h: 74, space: 'working', category: 'table', seats: makeTrapSeats([1]) },
+        { id: 'trap_9',  type: 'trapezoid', label: 'Trap 9',  x: 895, y: 395, rot: 270, w: 130, h: 74, space: 'working', category: 'table', seats: makeTrapSeats([]) },
+        { id: 'trap_10', type: 'trapezoid', label: 'Trap 10', x: 835, y: 525, rot: 325, w: 130, h: 74, space: 'working', category: 'table', seats: makeTrapSeats([]) },
+
+        // 1 Large Three-Circled Splat Table (4 outside-edge spots = 24 Working Space spots total)
+        {
+          id: 'splat_1', type: 'splat', label: '3-Circle Splat',
+          x: 855, y: 48, rot: 0, w: 210, h: 195, space: 'working', category: 'table',
+          seats: [
+            { workingStudent: null, chairType: 'wobbly', rx: 105, ry: -10 },
+            { workingStudent: null, chairType: 'blue',   rx: 4,   ry: 135 },
+            { workingStudent: null, chairType: 'blue',   rx: 206, ry: 135 },
+            { workingStudent: null, chairType: 'blue',   rx: 105, ry: 200 }
+          ]
+        },
+
+        // 3 Quarter-Circle Couches (4 spots inside each couch = 12 Teaching Space spots)
+        {
+          id: 'couch_1', type: 'quarter_couch', label: 'Couch 1',
+          x: 105, y: 615, rot: 270, w: 195, h: 195, space: 'teaching', category: 'couch',
+          seats: [
+            { teachingStudent: null, rx: 44,  ry: 142 },
+            { teachingStudent: null, rx: 68,  ry: 98 },
+            { teachingStudent: null, rx: 106, ry: 66 },
+            { teachingStudent: null, rx: 152, ry: 44 }
+          ]
+        },
+        {
+          id: 'couch_2', type: 'quarter_couch', label: 'Couch 2',
+          x: 455, y: 525, rot: 315, w: 195, h: 195, space: 'teaching', category: 'couch',
+          seats: [
+            { teachingStudent: null, rx: 44,  ry: 142 },
+            { teachingStudent: null, rx: 68,  ry: 98 },
+            { teachingStudent: null, rx: 106, ry: 66 },
+            { teachingStudent: null, rx: 152, ry: 44 }
+          ]
+        },
+        {
+          id: 'couch_3', type: 'quarter_couch', label: 'Couch 3',
+          x: 815, y: 635, rot: 0, w: 195, h: 195, space: 'teaching', category: 'couch',
+          seats: [
+            { teachingStudent: null, rx: 44,  ry: 142 },
+            { teachingStudent: null, rx: 68,  ry: 98 },
+            { teachingStudent: null, rx: 106, ry: 66 },
+            { teachingStudent: null, rx: 152, ry: 44 }
+          ]
+        },
+
+        // 6 Named Color-Coded Bean Bags — EACH WITH 2 DISTINCT SEAT SPACES (Spot 1 & Spot 2 = 12 spots)
+        {
+          id: 'bag_red', type: 'beanbag', bagTheme: 'red', label: 'Red Bean Bag',
+          x: 155, y: 835, rot: 0, w: 132, h: 132, space: 'teaching', category: 'beanbag',
+          seats: [
+            { teachingStudent: null, rx: 66, ry: 52 },
+            { teachingStudent: null, rx: 66, ry: 92 }
+          ]
+        },
+        {
+          id: 'bag_vangogh', type: 'beanbag', bagTheme: 'vangogh', label: 'Van Gogh Starry Night',
+          x: 305, y: 725, rot: 0, w: 136, h: 136, space: 'teaching', category: 'beanbag',
+          seats: [
+            { teachingStudent: null, rx: 68, ry: 54 },
+            { teachingStudent: null, rx: 68, ry: 94 }
+          ]
+        },
+        {
+          id: 'bag_blue', type: 'beanbag', bagTheme: 'blue', label: 'Blue Bean Bag',
+          x: 495, y: 705, rot: 0, w: 132, h: 132, space: 'teaching', category: 'beanbag',
+          seats: [
+            { teachingStudent: null, rx: 66, ry: 52 },
+            { teachingStudent: null, rx: 66, ry: 92 }
+          ]
+        },
+        {
+          id: 'bag_orange', type: 'beanbag', bagTheme: 'orange', label: 'Orange Bean Bag',
+          x: 680, y: 725, rot: 0, w: 132, h: 132, space: 'teaching', category: 'beanbag',
+          seats: [
+            { teachingStudent: null, rx: 66, ry: 52 },
+            { teachingStudent: null, rx: 66, ry: 92 }
+          ]
+        },
+        {
+          id: 'bag_green', type: 'beanbag', bagTheme: 'green', label: 'Green Bean Bag',
+          x: 825, y: 840, rot: 0, w: 132, h: 132, space: 'teaching', category: 'beanbag',
+          seats: [
+            { teachingStudent: null, rx: 66, ry: 52 },
+            { teachingStudent: null, rx: 66, ry: 92 }
+          ]
+        },
+        {
+          id: 'bag_beigegreen', type: 'beanbag', bagTheme: 'beigegreen', label: 'Beige-Green Bean Bag',
+          x: 230, y: 985, rot: 0, w: 132, h: 132, space: 'teaching', category: 'beanbag',
+          seats: [
+            { teachingStudent: null, rx: 66, ry: 52 },
+            { teachingStudent: null, rx: 66, ry: 92 }
+          ]
+        },
+
+        // 1 Movable Lounge Rug
+        {
+          id: 'rug_1', type: 'rug', label: 'Lounge Rug',
+          x: 405, y: 865, rot: 0, w: 320, h: 215, space: 'decor', category: 'decor',
+          seats: []
+        },
+
+        // 3 Movable Floor Pillows (adjustable via + Add Pillow / - Remove Pillow)
+        { id: 'pillow_1', type: 'floor_pillow', label: 'Pillow 1', x: 430, y: 910, rot: 0, w: 88, h: 64, space: 'teaching', category: 'pillow', seats: [{ teachingStudent: null, rx: 44, ry: 42 }] },
+        { id: 'pillow_2', type: 'floor_pillow', label: 'Pillow 2', x: 525, y: 910, rot: 0, w: 88, h: 64, space: 'teaching', category: 'pillow', seats: [{ teachingStudent: null, rx: 44, ry: 42 }] },
+        { id: 'pillow_3', type: 'floor_pillow', label: 'Pillow 3', x: 620, y: 910, rot: 0, w: 88, h: 64, space: 'teaching', category: 'pillow', seats: [{ teachingStudent: null, rx: 44, ry: 42 }] }
+      ];
+    }
+
+    function ensureAllBeanBagsHaveTwoSeats(furnitureList) {
+      furnitureList.forEach(piece => {
+        if (piece.type !== 'beanbag') return;
+        piece.w = Math.max(piece.w || 132, 132);
+        piece.h = Math.max(piece.h || 132, 132);
+        const cx = Math.round(piece.w / 2);
+        const firstStudent = piece.seats[0] ? (piece.seats[0].teachingStudent || null) : null;
+        const secondStudent = piece.seats[1] ? (piece.seats[1].teachingStudent || null) : null;
+        piece.seats = [
+          { teachingStudent: firstStudent, rx: cx, ry: 52 },
+          { teachingStudent: secondStudent, rx: cx, ry: 92 }
+        ];
+      });
+    }
+
+    // =========================================================================
+    // 4. APPLICATION STATE & MULTI-KEY STARTUP RECOVERY
+    // =========================================================================
+    let state = {
+      roster: [],
+      separationGroups: [],
+      furniture: [],
+      snapToGrid: true,
+      currentJobs: {},
+      jobsLocked: false,
+      history: {},
+      weeksLogged: 0
+    };
+
+    let activePlan = 'working';         // 'working' | 'teaching'
+    let quickAssignFilter = 'teaching'; // 'teaching' | 'working'
+    let interactionMode = 'seats';      // 'seats' | 'arrange'
+    let selectedPieceId = 'splat_1';
+    let projectorViewMode = 'split';    // 'split' | 'seats' | 'jobs'
+    let projectorSpace = 'working';     // 'working' | 'teaching'
+
+    let activeSelection = null;
+    let pickerTarget = null;
+
+    let furniturePointerOp = {
+      mode: null,
+      pieceId: null,
+      startX: 0,
+      startY: 0,
+      origX: 0,
+      origY: 0,
+      centerX: 0,
+      centerY: 0
+    };
+
+    function persistState() {
+      safeStorageSet(PRIMARY_STORAGE_KEY, JSON.stringify(state));
+      updateStorageCaption();
+    }
+
+    function updateStorageCaption() {
+      const cap = document.getElementById('storage-mode-caption');
+      if (!cap) return;
+      cap.textContent = usingMemoryFallback
+        ? 'Running in sandboxed memory mode — click "Export Backup (.json)" to save your class list to your computer!'
+        : 'Saves automatically in your browser. Export a .json backup file to your computer so you never lose your class list!';
+    }
+
+    function ensureHistory(studentName) {
+      if (!state.history[studentName]) {
+        state.history[studentName] = {
+          wobblyCount: 0,
+          blueCount: 0,
+          couchCount: 0,
+          beanBagCount: 0,
+          pillowCount: 0,
+          lastWorkingZone: null,
+          lastWorkingType: null,
+          lastTeachingZone: null,
+          lastTeachingType: null,
+          jobsDone: [],
+          workedLastWeek: false
+        };
+      }
+    }
+
+    function normalizeAndLoadSnapshot(parsed) {
+      state.roster = Array.isArray(parsed.roster) ? [...parsed.roster] : [...DEFAULT_ROSTER_24];
+      state.separationGroups = Array.isArray(parsed.separationGroups) ? JSON.parse(JSON.stringify(parsed.separationGroups)) : [];
+      state.snapToGrid = typeof parsed.snapToGrid === 'boolean' ? parsed.snapToGrid : true;
+      state.currentJobs = parsed.currentJobs && typeof parsed.currentJobs === 'object' ? { ...parsed.currentJobs } : {};
+      state.jobsLocked = Boolean(parsed.jobsLocked);
+      state.history = parsed.history && typeof parsed.history === 'object' ? JSON.parse(JSON.stringify(parsed.history)) : {};
+      state.weeksLogged = Number(parsed.weeksLogged) || 0;
+
+      if (Array.isArray(parsed.furniture) && parsed.furniture.length > 0) {
+        state.furniture = JSON.parse(JSON.stringify(parsed.furniture));
+      } else {
+        state.furniture = createDefaultFurniture();
+      }
+
+      ensureAllBeanBagsHaveTwoSeats(state.furniture);
+      state.roster.forEach(ensureHistory);
+    }
+
+    function initApp() {
+      try {
+        const snapshots = scanAllBrowserClassroomKeys();
+        // Prefer primary key if it has a custom roster, otherwise prefer ANY legacy key that has custom names!
+        const primarySnap = snapshots.find(s => s.key === PRIMARY_STORAGE_KEY);
+        const customLegacySnap = snapshots.find(s => s.key !== PRIMARY_STORAGE_KEY && s.isCustom);
+
+        if (primarySnap && (primarySnap.isCustom || !customLegacySnap)) {
+          normalizeAndLoadSnapshot(primarySnap.data);
+          persistState();
+        } else if (customLegacySnap) {
+          normalizeAndLoadSnapshot(customLegacySnap.data);
+          persistState();
+          const bar = document.getElementById('recovery-notice-bar');
+          const txt = document.getElementById('recovery-notice-text');
+          if (bar && txt) {
+            txt.textContent = `✓ Automatically rescued your saved class roster (${customLegacySnap.count} students: ${customLegacySnap.preview}...) from "${customLegacySnap.key}"!`;
+            bar.classList.remove('hidden');
+          }
+        } else if (snapshots.length > 0) {
+          normalizeAndLoadSnapshot(snapshots[0].data);
+          persistState();
+        } else {
+          state.roster = [...DEFAULT_ROSTER_24];
+          state.separationGroups = JSON.parse(JSON.stringify(DEFAULT_SEPARATION_GROUPS));
+          state.furniture = createDefaultFurniture();
+          state.snapToGrid = true;
+          state.history = {};
+          state.roster.forEach(ensureHistory);
+          autoAssignBothPlans(true);
+          spinWeeklyJobs(true);
+          persistState();
+        }
+
+        renderAll();
+      } catch (fatalErr) {
+        state.roster = [...DEFAULT_ROSTER_24];
+        state.separationGroups = JSON.parse(JSON.stringify(DEFAULT_SEPARATION_GROUPS));
+        state.furniture = createDefaultFurniture();
+        renderAll();
+      }
+    }
+
+    // =========================================================================
+    // 5. PURE HTML/CSS FURNITURE SHAPE RENDERER
+    // =========================================================================
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderPieceHTML(piece) {
+      const counterRot = -piece.rot;
+
+      if (piece.type === 'trapezoid') {
+        return `
+          <div class="shape-trapezoid-outer">
+            <div class="shape-trapezoid-inner">
+              <div class="furniture-tag" style="color:#9A3412; transform:rotate(${counterRot}deg);">${escapeHTML(piece.label)}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (piece.type === 'splat') {
+        return `
+          <div class="shape-splat-wrap">
+            <div class="splat-lobe top"></div>
+            <div class="splat-lobe bl"></div>
+            <div class="splat-lobe br"></div>
+            <div class="splat-bridge"></div>
+            <div class="furniture-tag" style="position:relative; z-index:2; color:#284B37; transform:rotate(${counterRot}deg);">3-Circle Splat</div>
+          </div>
+        `;
+      }
+
+      if (piece.type === 'quarter_couch') {
+        return `
+          <div class="shape-quarter-couch">
+            <div class="furniture-tag" style="color:#3730A3; transform:rotate(${counterRot}deg);">${escapeHTML(piece.label)}</div>
+          </div>
+        `;
+      }
+
+      if (piece.type === 'beanbag') {
+        const themeClassMap = {
+          red: 'bag-red',
+          vangogh: 'bag-vangogh',
+          blue: 'bag-blue',
+          orange: 'bag-orange',
+          green: 'bag-green',
+          beigegreen: 'bag-beigegreen'
+        };
+        const shortNameMap = {
+          red: 'Red Bag',
+          vangogh: 'Starry Night',
+          blue: 'Blue Bag',
+          orange: 'Orange Bag',
+          green: 'Green Bag',
+          beigegreen: 'Beige-Green'
+        };
+        const cls = themeClassMap[piece.bagTheme] || 'bag-blue';
+        const title = shortNameMap[piece.bagTheme] || piece.label;
+        return `
+          <div class="shape-beanbag ${cls}">
+            <div class="bag-title-pill" style="transform:rotate(${counterRot}deg);">${escapeHTML(title)}</div>
+          </div>
+        `;
+      }
+
+      if (piece.type === 'rug') {
+        return `
+          <div class="shape-rug">
+            <div class="furniture-tag" style="color:#78716C; transform:rotate(${counterRot}deg);">LOUNGE RUG</div>
+          </div>
+        `;
+      }
+
+      if (piece.type === 'floor_pillow') {
+        return `
+          <div class="shape-pillow">
+            <div style="font-size:8.5px; font-weight:800; color:#92400E; transform:rotate(${counterRot}deg);">${escapeHTML(piece.label)}</div>
+          </div>
+        `;
+      }
+
+      return '';
+    }
+
+    // =========================================================================
+    // 6. PLAN & MODE SWITCHERS & FLOOR PILLOWS
+    // =========================================================================
+    function setSeatingPlanMode(plan) {
+      activePlan = plan;
+      quickAssignFilter = plan;
+      clearSelection();
+
+      const btnW = document.getElementById('plan-btn-working');
+      const btnT = document.getElementById('plan-btn-teaching');
+      const indicator = document.getElementById('stage-plan-indicator');
+
+      if (plan === 'working') {
+        btnW.className = 'pill-btn active-working';
+        btnT.className = 'pill-btn';
+        indicator.textContent = 'Primary Focus: Working Space (Tables)';
+        indicator.style.color = 'var(--peach-600)';
+      } else {
+        btnT.className = 'pill-btn active-teaching';
+        btnW.className = 'pill-btn';
+        indicator.textContent = 'Primary Focus: Teaching Space (Couches, 2-Seat Bean Bags & Floor Pillows)';
+        indicator.style.color = 'var(--indigo-600)';
+      }
+
+      renderFloorplan();
+    }
+
+    function setQuickAssignFilter(space) {
+      quickAssignFilter = space;
+      renderQuickAssignSidebar();
+    }
+
+    function setFloorplanMode(mode) {
+      interactionMode = mode;
+      clearSelection();
+
+      const btnSeats = document.getElementById('mode-btn-seats');
+      const btnArr = document.getElementById('mode-btn-arrange');
+      const helper = document.getElementById('mode-helper-text');
+      const toolbar = document.getElementById('arrange-toolbar');
+
+      if (mode === 'seats') {
+        btnSeats.className = 'pill-btn active-dark';
+        btnArr.className = 'pill-btn';
+        helper.innerHTML = 'All <strong>6 Bean Bags</strong> have <strong>2 seat spaces</strong> each! Click <strong>+ Add Name</strong> on any Couch, Bean Bag, Pillow, or Table—or use the dropdown panel on the right.';
+        toolbar.classList.add('hidden');
+      } else {
+        btnArr.className = 'pill-btn active-dark';
+        btnSeats.className = 'pill-btn';
+        helper.innerHTML = 'Drag any furniture piece to move it, or drag its <strong style="color:#059669;">green ↻ handle</strong> / slider to rotate. All labels &amp; names stay upright!';
+        toolbar.classList.remove('hidden');
+      }
+
+      renderFloorplan();
+    }
+
+    function addFloorPillow() {
+      const existing = state.furniture.filter(p => p.type === 'floor_pillow');
+      const num = existing.length + 1;
+      const offset = (existing.length % 4) * 24;
+
+      const newPillow = {
+        id: 'pillow_' + Date.now(),
+        type: 'floor_pillow',
+        label: 'Pillow ' + num,
+        x: 430 + offset,
+        y: 910 + (existing.length % 3) * 26,
+        rot: 0,
+        w: 88,
+        h: 64,
+        space: 'teaching',
+        category: 'pillow',
+        seats: [{ teachingStudent: null, rx: 44, ry: 42 }]
+      };
+
+      state.furniture.push(newPillow);
+      selectedPieceId = newPillow.id;
+      persistState();
+      renderAll();
+      showToast('Added ' + newPillow.label + ' to Teaching Space!', 'success');
+    }
+
+    function removeFloorPillow() {
+      const existing = state.furniture.filter(p => p.type === 'floor_pillow');
+      if (existing.length === 0) {
+        showToast('No floor pillows left to remove.', 'info');
+        return;
+      }
+      const removed = existing[existing.length - 1];
+      state.furniture = state.furniture.filter(p => p.id !== removed.id);
+      if (selectedPieceId === removed.id) selectedPieceId = 'rug_1';
+      persistState();
+      renderAll();
+      showToast('Removed ' + removed.label + '.', 'info');
+    }
+
+    // =========================================================================
+    // 7. DIRECT CLICK-TO-PICK MODAL + QUICK-ASSIGN DROPDOWNS + ROSTER BAR
+    // =========================================================================
+    function openStudentPickerModal(pieceId, seatIdx) {
+      const piece = state.furniture.find(p => p.id === pieceId);
+      if (!piece) return;
+
+      pickerTarget = { pieceId: pieceId, seatIdx: seatIdx, targetSpace: piece.space };
+      document.getElementById('picker-modal-title').textContent = 'Assign Student → ' + piece.label;
+      document.getElementById('picker-modal-sub').textContent =
+        'Spot #' + (seatIdx + 1) + ' (' + (piece.space === 'working' ? 'Working Space Tables' : 'Teaching Space Lounge') + '):';
+      const searchInput = document.getElementById('picker-search-input');
+      const newNameInput = document.getElementById('picker-new-name-input');
+      searchInput.value = '';
+      newNameInput.value = '';
+
+      renderStudentPickerList();
+      document.getElementById('student-picker-modal').classList.remove('hidden');
+      setTimeout(() => newNameInput.focus(), 30);
+    }
+
+    function closeStudentPickerModal() {
+      pickerTarget = null;
+      document.getElementById('student-picker-modal').classList.add('hidden');
+    }
+
+    function createAndAssignFromPicker() {
+      if (!pickerTarget) return;
+      const input = document.getElementById('picker-new-name-input');
+      const name = (input.value || '').trim();
+      if (!name) return;
+
+      if (!state.roster.includes(name)) {
+        state.roster.push(name);
+        ensureHistory(name);
+      }
+
+      const { pieceId, seatIdx } = pickerTarget;
+      closeStudentPickerModal();
+      placeStudentAtSeat(name, pieceId, seatIdx);
+    }
+
+    function renderStudentPickerList() {
+      if (!pickerTarget) return;
+      const query = (document.getElementById('picker-search-input').value || '').trim().toLowerCase();
+      const targetSpace = pickerTarget.targetSpace;
+      const prop = targetSpace === 'working' ? 'workingStudent' : 'teachingStudent';
+
+      const currentSeatMap = {};
+      state.furniture.forEach(p => {
+        if (p.space !== targetSpace) return;
+        p.seats.forEach(s => {
+          if (s[prop]) currentSeatMap[s[prop]] = p.label;
+        });
+      });
+
+      const filtered = state.roster.filter(name => !query || name.toLowerCase().includes(query));
+      filtered.sort((a, b) => {
+        const aSeated = Boolean(currentSeatMap[a]);
+        const bSeated = Boolean(currentSeatMap[b]);
+        if (aSeated !== bSeated) return aSeated ? 1 : -1;
+        return 0;
+      });
+
+      const host = document.getElementById('picker-student-list');
+      if (filtered.length === 0) {
+        host.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:16px; font-size:13px; color:var(--muted);">No matching students. Type a name in the box above and click "+ Add &amp; Seat"!</div>';
+        return;
+      }
+
+      host.innerHTML = filtered.map(name => {
+        const loc = currentSeatMap[name];
+        const cls = 'picker-student-btn ' + (loc ? 'already-seated' : '');
+        const badge = loc
+          ? `<span style="font-size:10.5px; color:var(--muted); font-weight:700;">${escapeHTML(loc)}</span>`
+          : `<span style="font-size:10.5px; color:var(--sage-600); font-weight:800;">Unseated</span>`;
+        return `
+          <button class="${cls}" onclick="assignFromPickerModal('${escapeHTML(name)}')">
+            <span>${escapeHTML(name)}</span>
+            ${badge}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function assignFromPickerModal(studentName) {
+      if (!pickerTarget) return;
+      const { pieceId, seatIdx } = pickerTarget;
+      closeStudentPickerModal();
+      placeStudentAtSeat(studentName, pieceId, seatIdx);
+    }
+
+    function clearSelection() {
+      activeSelection = null;
+      updateSelectionBanner();
+      renderFloorplan();
+    }
+
+    function updateSelectionBanner() {
+      const bar = document.getElementById('selection-prompt-bar');
+      const txt = document.getElementById('selection-prompt-text');
+      if (!activeSelection || interactionMode !== 'seats') {
+        bar.classList.add('hidden');
+        return;
+      }
+      bar.classList.remove('hidden');
+      txt.textContent = 'Selected: ' + activeSelection.studentName + ' — Click any "+ Add Name" button or student pill on a Couch, Bean Bag, Pillow, or Table to place/swap';
+    }
+
+    function selectRosterStudent(studentName) {
+      if (interactionMode !== 'seats') setFloorplanMode('seats');
+
+      if (activeSelection && activeSelection.type === 'roster' && activeSelection.studentName === studentName) {
+        clearSelection();
+        return;
+      }
+
+      activeSelection = { type: 'roster', studentName: studentName };
+      updateSelectionBanner();
+      renderFloorplan();
+    }
+
+    function placeStudentAtSeat(studentName, targetPieceId, targetSeatIdx) {
+      const targetPiece = state.furniture.find(p => p.id === targetPieceId);
+      if (!targetPiece) return;
+
+      const targetSpace = targetPiece.space;
+      const prop = targetSpace === 'working' ? 'workingStudent' : 'teachingStudent';
+      const targetSeat = targetPiece.seats[targetSeatIdx];
+      if (!targetSeat) return;
+
+      if (!studentName) {
+        targetSeat[prop] = null;
+        persistState();
+        renderAll();
+        return;
+      }
+
+      // Remove student from any prior seat in that same space
+      state.furniture.forEach(p => {
+        if (p.space !== targetSpace) return;
+        p.seats.forEach(s => {
+          if (s[prop] === studentName) s[prop] = null;
+        });
+      });
+
+      targetSeat[prop] = studentName;
+      activeSelection = null;
+      persistState();
+      renderAll();
+      showToast('Assigned ' + studentName + ' to ' + targetPiece.label + ' (Spot ' + (targetSeatIdx + 1) + ')!', 'success');
+    }
+
+    function handleSeatClick(event, pieceId, seatIdx) {
+      if (event) event.stopPropagation();
+
+      if (interactionMode === 'arrange') {
+        selectedPieceId = pieceId;
+        renderFloorplan();
+        return;
+      }
+
+      const piece = state.furniture.find(p => p.id === pieceId);
+      if (!piece) return;
+
+      const pieceSpace = piece.space;
+      const prop = pieceSpace === 'working' ? 'workingStudent' : 'teachingStudent';
+      const clickedSeat = piece.seats[seatIdx];
+      if (!clickedSeat) return;
+      const occupant = clickedSeat[prop];
+
+      // Case 1: Nothing currently selected
+      if (!activeSelection) {
+        if (occupant) {
+          activeSelection = { type: 'seat', pieceId: pieceId, seatIdx: seatIdx, space: pieceSpace, studentName: occupant };
+          updateSelectionBanner();
+          renderFloorplan();
+        } else {
+          openStudentPickerModal(pieceId, seatIdx);
+        }
+        return;
+      }
+
+      // Case 2: Clicking the exact same already-selected seat -> deselect
+      if (activeSelection.type === 'seat' && activeSelection.pieceId === pieceId && activeSelection.seatIdx === seatIdx) {
+        clearSelection();
+        return;
+      }
+
+      // Case 3: Placing from Roster Bar
+      if (activeSelection.type === 'roster') {
+        placeStudentAtSeat(activeSelection.studentName, pieceId, seatIdx);
+        return;
+      }
+
+      // Case 4: Moving or Swapping between two floorplan seats
+      if (activeSelection.type === 'seat') {
+        const srcPiece = state.furniture.find(p => p.id === activeSelection.pieceId);
+        if (srcPiece && srcPiece.space === pieceSpace) {
+          const srcSeat = srcPiece.seats[activeSelection.seatIdx];
+          const movingName = srcSeat[prop];
+          srcSeat[prop] = occupant || null;
+          clickedSeat[prop] = movingName;
+          showToast(occupant ? ('Swapped ' + movingName + ' ↔ ' + occupant) : ('Moved ' + movingName + ' to ' + piece.label), 'success');
+        } else if (srcPiece) {
+          placeStudentAtSeat(activeSelection.studentName, pieceId, seatIdx);
+          return;
+        }
+        activeSelection = null;
+        persistState();
+        renderAll();
+      }
+    }
+
+    function unassignSeat(event, pieceId, seatIdx) {
+      if (event) event.stopPropagation();
+      const piece = state.furniture.find(p => p.id === pieceId);
+      if (!piece) return;
+
+      const prop = piece.space === 'working' ? 'workingStudent' : 'teachingStudent';
+      const seat = piece.seats[seatIdx];
+      if (!seat || !seat[prop]) return;
+
+      const removedName = seat[prop];
+      seat[prop] = null;
+
+      if (activeSelection && activeSelection.studentName === removedName) {
+        activeSelection = null;
+      }
+
+      persistState();
+      renderAll();
+      showToast('Removed ' + removedName + ' from ' + piece.label + '.', 'info');
+    }
+
+    function clearPlanSeats(space) {
+      const prop = space === 'working' ? 'workingStudent' : 'teachingStudent';
+      state.furniture.forEach(piece => {
+        if (piece.space !== space) return;
+        piece.seats.forEach(s => { s[prop] = null; });
+      });
+      activeSelection = null;
+      persistState();
+      renderAll();
+      showToast('Cleared all seats in ' + (space === 'working' ? 'Working Space (Tables)' : 'Teaching Space (Couches & Bean Bags)') + '.', 'info');
+    }
+
+    function onToggleChairDot(event, pieceId, seatIdx) {
+      if (event) event.stopPropagation();
+      const piece = state.furniture.find(p => p.id === pieceId);
+      if (!piece || piece.category !== 'table') return;
+
+      const seat = piece.seats[seatIdx];
+      if (seat.chairType === 'wobbly') {
+        seat.chairType = 'blue';
+      } else {
+        const activeWobblyCount = collectSeats('working').filter(x => x.seat.chairType === 'wobbly').length;
+        if (activeWobblyCount >= 5) {
+          showToast('All 5 Wobbly Chairs are active! Click an existing ⚡ chair to free one first.', 'error');
+          return;
+        }
+        seat.chairType = 'wobbly';
+      }
+
+      persistState();
+      renderAll();
+    }
+
+    // =========================================================================
+    // 8. FURNITURE MOVE & ROTATION CONTROLS (ARRANGE & ROTATE MODE)
+    // =========================================================================
+    function beginFurnitureMove(event, pieceId) {
+      if (interactionMode !== 'arrange') return;
+      if (event.target.closest('.seat-pill') || event.target.closest('.rotate-knob')) return;
+
+      event.preventDefault();
+      selectedPieceId = pieceId;
+      const piece = state.furniture.find(p => p.id === pieceId);
+      if (!piece) return;
+
+      furniturePointerOp = {
+        mode: 'move',
+        pieceId: pieceId,
+        startX: event.clientX,
+        startY: event.clientY,
+        origX: piece.x,
+        origY: piece.y,
+        centerX: 0,
+        centerY: 0
+      };
+
+      renderFloorplan();
+    }
+
+    function beginFurnitureRotate(event, pieceId) {
+      if (interactionMode !== 'arrange') return;
+      event.preventDefault();
+      event.stopPropagation();
+
+      selectedPieceId = pieceId;
+      const el = document.getElementById('piece-el-' + pieceId);
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      furniturePointerOp = {
+        mode: 'rotate',
+        pieceId: pieceId,
+        startX: 0,
+        startY: 0,
+        origX: 0,
+        origY: 0,
+        centerX: rect.left + rect.width / 2,
+        centerY: rect.top + rect.height / 2
+      };
+    }
+
+    function handleGlobalPointerMove(event) {
+      if (!furniturePointerOp.mode) return;
+      const piece = state.furniture.find(p => p.id === furniturePointerOp.pieceId);
+      if (!piece) return;
+
+      if (furniturePointerOp.mode === 'move') {
+        let nx = furniturePointerOp.origX + (event.clientX - furniturePointerOp.startX);
+        let ny = furniturePointerOp.origY + (event.clientY - furniturePointerOp.startY);
+
+        if (state.snapToGrid) {
+          nx = Math.round(nx / 10) * 10;
+          ny = Math.round(ny / 10) * 10;
+        }
+
+        piece.x = Math.max(5, Math.min(1135 - piece.w, Math.round(nx)));
+        piece.y = Math.max(30, Math.min(1135 - piece.h, Math.round(ny)));
+
+        const el = document.getElementById('piece-el-' + piece.id);
+        if (el) {
+          el.style.left = piece.x + 'px';
+          el.style.top = piece.y + 'px';
+        }
+      } else if (furniturePointerOp.mode === 'rotate') {
+        const rad = Math.atan2(event.clientY - furniturePointerOp.centerY, event.clientX - furniturePointerOp.centerX);
+        let deg = Math.round((rad * 180) / Math.PI + 90);
+        deg = ((deg % 360) + 360) % 360;
+        piece.rot = deg;
+        renderFloorplan();
+      }
+    }
+
+    function handleGlobalPointerUp() {
+      if (furniturePointerOp.mode) {
+        furniturePointerOp.mode = null;
+        persistState();
+      }
+    }
+
+    function setSelectedAngle(val) {
+      const piece = state.furniture.find(p => p.id === selectedPieceId);
+      if (!piece) return;
+      piece.rot = ((parseInt(val, 10) || 0) % 360 + 360) % 360;
+      persistState();
+      renderFloorplan();
+    }
+
+    function rotateSelectedBy(delta) {
+      const piece = state.furniture.find(p => p.id === selectedPieceId);
+      if (!piece) {
+        showToast('Click any piece of furniture first to select it.', 'info');
+        return;
+      }
+      piece.rot = ((piece.rot + delta) % 360 + 360) % 360;
+      persistState();
+      renderFloorplan();
+    }
+
+    function toggleGridSnap(checked) {
+      state.snapToGrid = checked;
+      persistState();
+    }
+
+    function resetFurnitureLayout() {
+      openConfirmModal(
+        'Reset Default Layout?',
+        'This restores the default positions and rotations of all 10 trapezoid tables, the 3-circle splat table, 3 quarter-circle couches, 6 two-seat bean bags, and floor pillows while keeping your current student seat assignments.',
+        function () {
+          const fresh = createDefaultFurniture();
+          fresh.forEach(np => {
+            const old = state.furniture.find(op => op.id === np.id);
+            if (old) {
+              np.seats.forEach((s, idx) => {
+                if (old.seats[idx]) {
+                  if ('workingStudent' in s) s.workingStudent = old.seats[idx].workingStudent || null;
+                  if ('teachingStudent' in s) s.teachingStudent = old.seats[idx].teachingStudent || null;
+                  if (old.seats[idx].chairType) s.chairType = old.seats[idx].chairType;
+                }
+              });
+            }
+          });
+          state.furniture = fresh;
+          persistState();
+          renderAll();
+          showToast('Room furniture layout reset to default!', 'success');
+        }
+      );
+    }
+
+    // =========================================================================
+    // 9. AUTO-ASSIGN ENGINE & MONDAY WEEKLY REFRESH
+    // =========================================================================
+    function collectSeats(plan) {
+      const res = [];
+      state.furniture.forEach(piece => {
+        if (piece.space !== plan) return;
+        piece.seats.forEach((seat, seatIdx) => {
+          res.push({ piece: piece, seat: seat, seatIdx: seatIdx });
+        });
+      });
+      return res;
+    }
+
+    function buildForbiddenMap() {
+      const map = {};
+      state.separationGroups.forEach(grp => {
+        grp.members.forEach(m1 => {
+          if (!map[m1]) map[m1] = new Set();
+          grp.members.forEach(m2 => {
+            if (m1 !== m2) map[m1].add(m2);
+          });
+        });
+      });
+      return map;
+    }
+
+    function shuffled(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = copy[i];
+        copy[i] = copy[j];
+        copy[j] = t;
+      }
+      return copy;
+    }
+
+    function autoAssignWorking(silent) {
+      const students = [...state.roster];
+      const seats = collectSeats('working');
+      if (students.length === 0) {
+        if (!silent) showToast('Add students in Students & Rules first!', 'error');
+        return;
+      }
+
+      seats.forEach(item => {
+        item.seat.workingStudent = null;
+        item.seat.chairType = 'blue';
+      });
+
+      shuffled(seats).slice(0, 5).forEach(item => {
+        item.seat.chairType = 'wobbly';
+      });
+
+      const forbidden = buildForbiddenMap();
+      const constrained = shuffled(students.filter(s => forbidden[s] && forbidden[s].size > 0));
+      const free = shuffled(students.filter(s => !forbidden[s] || forbidden[s].size === 0));
+      const order = [...constrained, ...free];
+
+      order.forEach(student => {
+        ensureHistory(student);
+        const h = state.history[student];
+        let bestSeat = null;
+        let bestScore = -Infinity;
+
+        seats.forEach(item => {
+          if (item.seat.workingStudent !== null) return;
+
+          const peersOnPiece = item.piece.seats.map(s => s.workingStudent).filter(Boolean);
+          const conflictOnPiece = peersOnPiece.some(p => forbidden[student] && forbidden[student].has(p));
+
+          let score = Math.random() * 10;
+          if (conflictOnPiece) score -= 50000;
+
+          if (forbidden[student] && forbidden[student].size > 0) {
+            const cx = item.piece.x + item.piece.w / 2;
+            const cy = item.piece.y + item.piece.h / 2;
+            let minPeerDist = Infinity;
+
+            seats.forEach(other => {
+              if (other.seat.workingStudent && forbidden[student].has(other.seat.workingStudent)) {
+                const ox = other.piece.x + other.piece.w / 2;
+                const oy = other.piece.y + other.piece.h / 2;
+                const d = Math.hypot(cx - ox, cy - oy);
+                if (d < minPeerDist) minPeerDist = d;
+              }
+            });
+
+            if (minPeerDist !== Infinity) score += Math.min(minPeerDist, 750) * 0.14;
+          }
+
+          if (h.lastWorkingZone === item.piece.id) score -= 35;
+          if (item.seat.chairType === 'wobbly') {
+            if (h.lastWorkingType === 'wobbly') score -= 55;
+            if (h.lastWorkingType === 'blue') score += 25;
+            score -= h.wobblyCount * 14;
+          } else {
+            if (h.lastWorkingType === 'wobbly') score += 22;
+          }
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestSeat = item.seat;
+          }
+        });
+
+        if (bestSeat) bestSeat.workingStudent = student;
+      });
+
+      activeSelection = null;
+      persistState();
+      renderAll();
+      if (!silent) showToast('Randomized Working Space (Tables) with separation & wobbly chair fairness!', 'success');
+    }
+
+    function autoAssignTeaching(silent) {
+      const students = [...state.roster];
+      const seats = collectSeats('teaching');
+      if (students.length === 0) {
+        if (!silent) showToast('Add students in Students & Rules first!', 'error');
+        return;
+      }
+
+      seats.forEach(item => {
+        item.seat.teachingStudent = null;
+      });
+
+      const forbidden = buildForbiddenMap();
+      const constrained = shuffled(students.filter(s => forbidden[s] && forbidden[s].size > 0));
+      const free = shuffled(students.filter(s => !forbidden[s] || forbidden[s].size === 0));
+      const order = [...constrained, ...free];
+
+      order.forEach(student => {
+        ensureHistory(student);
+        const h = state.history[student];
+        let bestSeat = null;
+        let bestScore = -Infinity;
+
+        seats.forEach(item => {
+          if (item.seat.teachingStudent !== null) return;
+
+          const peersOnPiece = item.piece.seats.map(s => s.teachingStudent).filter(Boolean);
+          const conflictOnPiece = peersOnPiece.some(p => forbidden[student] && forbidden[student].has(p));
+
+          let score = Math.random() * 10;
+          if (conflictOnPiece) score -= 50000;
+
+          if (forbidden[student] && forbidden[student].size > 0) {
+            const cx = item.piece.x + item.piece.w / 2;
+            const cy = item.piece.y + item.piece.h / 2;
+            let minPeerDist = Infinity;
+
+            seats.forEach(other => {
+              if (other.seat.teachingStudent && forbidden[student].has(other.seat.teachingStudent)) {
+                const ox = other.piece.x + other.piece.w / 2;
+                const oy = other.piece.y + other.piece.h / 2;
+                const d = Math.hypot(cx - ox, cy - oy);
+                if (d < minPeerDist) minPeerDist = d;
+              }
+            });
+
+            if (minPeerDist !== Infinity) score += Math.min(minPeerDist, 650) * 0.16;
+          }
+
+          if (h.lastTeachingZone === item.piece.id) score -= 40;
+          if (h.lastTeachingType === item.piece.category) score -= 24;
+
+          if (item.piece.category === 'couch') score -= h.couchCount * 10;
+          else if (item.piece.category === 'beanbag') score -= h.beanBagCount * 10;
+          else if (item.piece.category === 'pillow') score -= h.pillowCount * 10;
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestSeat = item.seat;
+          }
+        });
+
+        if (bestSeat) bestSeat.teachingStudent = student;
+      });
+
+      activeSelection = null;
+      persistState();
+      renderAll();
+      if (!silent) showToast('Randomized Teaching Space (Couches, 2-Seat Bean Bags & Pillows)!', 'success');
+    }
+
+    function autoAssignActivePlan() {
+      if (activePlan === 'working') autoAssignWorking(false);
+      else autoAssignTeaching(false);
+    }
+
+    function autoAssignBothPlans(silent) {
+      autoAssignWorking(true);
+      autoAssignTeaching(true);
+      if (!silent) showToast('Randomized BOTH Working Space & Teaching Space!', 'success');
+    }
+
+    function logBothSpacesToHistory() {
+      collectSeats('working').forEach(({ piece, seat }) => {
+        if (!seat.workingStudent) return;
+        ensureHistory(seat.workingStudent);
+        const h = state.history[seat.workingStudent];
+        h.lastWorkingZone = piece.id;
+        h.lastWorkingType = seat.chairType;
+        if (seat.chairType === 'wobbly') h.wobblyCount += 1;
+        else h.blueCount += 1;
+      });
+
+      collectSeats('teaching').forEach(({ piece, seat }) => {
+        if (!seat.teachingStudent) return;
+        ensureHistory(seat.teachingStudent);
+        const h = state.history[seat.teachingStudent];
+        h.lastTeachingZone = piece.id;
+        h.lastTeachingType = piece.category;
+        if (piece.category === 'couch') h.couchCount += 1;
+        else if (piece.category === 'beanbag') h.beanBagCount += 1;
+        else if (piece.category === 'pillow') h.pillowCount += 1;
+      });
+    }
+
+    function lockAndLogHistory() {
+      if (activePlan === 'working') {
+        collectSeats('working').forEach(({ piece, seat }) => {
+          if (!seat.workingStudent) return;
+          ensureHistory(seat.workingStudent);
+          const h = state.history[seat.workingStudent];
+          h.lastWorkingZone = piece.id;
+          h.lastWorkingType = seat.chairType;
+          if (seat.chairType === 'wobbly') h.wobblyCount += 1;
+          else h.blueCount += 1;
+        });
+        persistState();
+        renderAll();
+        showToast('Working Space logged to student fairness history!', 'success');
+      } else {
+        collectSeats('teaching').forEach(({ piece, seat }) => {
+          if (!seat.teachingStudent) return;
+          ensureHistory(seat.teachingStudent);
+          const h = state.history[seat.teachingStudent];
+          h.lastTeachingZone = piece.id;
+          h.lastTeachingType = piece.category;
+          if (piece.category === 'couch') h.couchCount += 1;
+          else if (piece.category === 'beanbag') h.beanBagCount += 1;
+          else if (piece.category === 'pillow') h.pillowCount += 1;
+        });
+        persistState();
+        renderAll();
+        showToast('Teaching Space logged to student fairness history!', 'success');
+      }
+    }
+
+    function mondayWeeklyRefresh() {
+      if (state.roster.length === 0) {
+        showToast('Add students in Students & Rules first!', 'error');
+        return;
+      }
+
+      logBothSpacesToHistory();
+      if (!state.jobsLocked) {
+        const assignedSet = new Set(Object.values(state.currentJobs).filter(Boolean));
+        state.roster.forEach(student => {
+          ensureHistory(student);
+          state.history[student].workedLastWeek = assignedSet.has(student);
+        });
+        Object.entries(state.currentJobs).forEach(([jobId, student]) => {
+          if (student) {
+            ensureHistory(student);
+            state.history[student].jobsDone.push(jobId);
+          }
+        });
+        state.weeksLogged += 1;
+      }
+
+      autoAssignWorking(true);
+      autoAssignTeaching(true);
+      spinWeeklyJobs(true);
+      persistState();
+      renderAll();
+
+      showToast('🗓️ Happy Monday! Logged last week & generated fresh Working, Teaching & Job assignments!', 'success');
+    }
+
+    // =========================================================================
+    // 10. WEEKLY CLASS JOBS ENGINE
+    // =========================================================================
+    function spinWeeklyJobs(silent) {
+      if (state.roster.length === 0) {
+        if (!silent) showToast('Add students to your roster first!', 'error');
+        return;
+      }
+
+      const chosen = new Set();
+      const nextJobs = {};
+
+      CLASS_JOBS.forEach(job => {
+        let bestStudent = null;
+        let bestScore = -Infinity;
+
+        shuffled(state.roster).forEach(student => {
+          if (chosen.has(student)) return;
+          ensureHistory(student);
+          const h = state.history[student];
+
+          const repeatCount = h.jobsDone.filter(id => id === job.id).length;
+          let score = Math.random() * 10;
+          if (!h.workedLastWeek) score += 50;
+          score -= h.jobsDone.length * 18;
+          score -= repeatCount * 120;
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestStudent = student;
+          }
+        });
+
+        if (bestStudent) {
+          chosen.add(bestStudent);
+          nextJobs[job.id] = bestStudent;
+        }
+      });
+
+      state.currentJobs = nextJobs;
+      state.jobsLocked = false;
+      persistState();
+      renderAll();
+      if (!silent) showToast('Spun new weekly classroom jobs!', 'success');
+    }
+
+    function overrideJobStudent(jobId, studentName) {
+      state.currentJobs[jobId] = studentName;
+      state.jobsLocked = false;
+      persistState();
+      renderAll();
+    }
+
+    function lockWeeklyJobs() {
+      const assignedSet = new Set(Object.values(state.currentJobs).filter(Boolean));
+      state.roster.forEach(student => {
+        ensureHistory(student);
+        state.history[student].workedLastWeek = assignedSet.has(student);
+      });
+
+      Object.entries(state.currentJobs).forEach(([jobId, student]) => {
+        if (student) {
+          ensureHistory(student);
+          state.history[student].jobsDone.push(jobId);
+        }
+      });
+
+      state.weeksLogged += 1;
+      state.jobsLocked = true;
+      persistState();
+      renderAll();
+      showToast('Locked Week #' + state.weeksLogged + ' jobs into history!', 'success');
+    }
+
+    // =========================================================================
+    // 11. ROSTER EDITOR, STORAGE SCANNER, NEXT-YEAR RESET & SEPARATION GROUPS
+    // =========================================================================
+    function populateTextareaWithCurrentRoster() {
+      const box = document.getElementById('bulk-names-input');
+      box.value = state.roster.join('\n');
+      box.focus();
+    }
+
+    function openStorageScannerModal() {
+      const snapshots = scanAllBrowserClassroomKeys();
+      const host = document.getElementById('storage-scanner-results');
+
+      if (snapshots.length === 0) {
+        host.innerHTML = '<div style="padding:14px; background:var(--peach-50); border-radius:14px; font-size:13px; color:var(--muted);">No saved rosters found in browser localStorage. Paste your class list in the Bulk Paste box and click <strong>💾 Export Backup (.json)</strong> to save a permanent file to your computer!</div>';
+      } else {
+        host.innerHTML = snapshots.map(snap => `
+          <div style="padding:12px; border:1.5px solid ${snap.isCustom ? '#10B981' : 'var(--peach-200)'}; background:${snap.isCustom ? '#ECFDF5' : '#FAF8F6'}; border-radius:14px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <div>
+              <div style="font-size:13px; font-weight:900;">
+                ${escapeHTML(snap.key)}
+                ${snap.isCustom ? '<span class="badge badge-sage" style="margin-left:6px;">Custom Class Roster</span>' : '<span class="badge badge-amber" style="margin-left:6px;">Sample Names</span>'}
+              </div>
+              <div style="font-size:12px; color:var(--muted); margin-top:3px;">
+                <strong>${snap.count} students:</strong> ${escapeHTML(snap.preview)}...
+              </div>
+            </div>
+            <button class="btn btn-sage btn-sm" onclick="recoverSnapshotByKey('${escapeHTML(snap.key)}')">Recover This List</button>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('storage-scanner-modal').classList.remove('hidden');
+    }
+
+    function closeStorageScannerModal() {
+      document.getElementById('storage-scanner-modal').classList.add('hidden');
+    }
+
+    function recoverSnapshotByKey(key) {
+      const snapshots = scanAllBrowserClassroomKeys();
+      const target = snapshots.find(s => s.key === key);
+      if (!target) return;
+
+      normalizeAndLoadSnapshot(target.data);
+      persistState();
+      renderAll();
+      closeStorageScannerModal();
+      showToast('Recovered ' + target.count + ' students from "' + key + '"!', 'success');
+    }
+
+    function addSingleStudent() {
+      const input = document.getElementById('single-name-input');
+      const name = input.value.trim();
+      if (!name) return;
+
+      if (state.roster.includes(name)) {
+        showToast(name + ' is already on the roster.', 'info');
+        return;
+      }
+
+      state.roster.push(name);
+      ensureHistory(name);
+      input.value = '';
+      persistState();
+      renderAll();
+      showToast('Added ' + name + ' to roster.', 'success');
+    }
+
+    function bulkImportRoster(replaceExisting) {
+      const input = document.getElementById('bulk-names-input');
+      const raw = input.value.trim();
+      if (!raw) {
+        showToast('Paste or type your student names in the box first!', 'info');
+        return;
+      }
+
+      const parsedNames = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+      const uniqueNames = Array.from(new Set(parsedNames));
+
+      if (replaceExisting) {
+        state.roster = uniqueNames;
+        state.separationGroups = [];
+        state.furniture.forEach(p => {
+          p.seats.forEach(s => {
+            if ('workingStudent' in s) s.workingStudent = null;
+            if ('teachingStudent' in s) s.teachingStudent = null;
+          });
+        });
+        state.currentJobs = {};
+        state.history = {};
+        state.roster.forEach(ensureHistory);
+        autoAssignBothPlans(true);
+        spinWeeklyJobs(true);
+        input.value = '';
+        persistState();
+        renderAll();
+        showToast('Saved roster with ' + uniqueNames.length + ' students and assigned seats!', 'success');
+      } else {
+        let count = 0;
+        uniqueNames.forEach(name => {
+          if (!state.roster.includes(name)) {
+            state.roster.push(name);
+            ensureHistory(name);
+            count++;
+          }
+        });
+        input.value = '';
+        persistState();
+        renderAll();
+        showToast('Appended ' + count + ' new student(s) to roster.', 'success');
+      }
+    }
+
+    function renameStudent(oldName, rawNewName) {
+      const newName = rawNewName.trim();
+      if (!newName || newName === oldName) {
+        renderRosterTab();
+        return;
+      }
+      if (state.roster.includes(newName)) {
+        showToast('A student named "' + newName + '" already exists.', 'error');
+        renderRosterTab();
+        return;
+      }
+
+      state.roster = state.roster.map(s => (s === oldName ? newName : s));
+      state.separationGroups.forEach(g => {
+        g.members = g.members.map(m => (m === oldName ? newName : m));
+      });
+      state.furniture.forEach(p => {
+        p.seats.forEach(s => {
+          if (s.workingStudent === oldName) s.workingStudent = newName;
+          if (s.teachingStudent === oldName) s.teachingStudent = newName;
+        });
+      });
+      Object.keys(state.currentJobs).forEach(jid => {
+        if (state.currentJobs[jid] === oldName) state.currentJobs[jid] = newName;
+      });
+      if (state.history[oldName]) {
+        state.history[newName] = state.history[oldName];
+        delete state.history[oldName];
+      } else {
+        ensureHistory(newName);
+      }
+
+      persistState();
+      renderAll();
+      showToast('Renamed ' + oldName + ' → ' + newName, 'success');
+    }
+
+    function deleteStudent(name) {
+      state.roster = state.roster.filter(s => s !== name);
+      state.separationGroups.forEach(g => {
+        g.members = g.members.filter(m => m !== name);
+      });
+      state.furniture.forEach(p => {
+        p.seats.forEach(s => {
+          if (s.workingStudent === name) s.workingStudent = null;
+          if (s.teachingStudent === name) s.teachingStudent = null;
+        });
+      });
+      Object.keys(state.currentJobs).forEach(jid => {
+        if (state.currentJobs[jid] === name) state.currentJobs[jid] = '';
+      });
+      delete state.history[name];
+      persistState();
+      renderAll();
+    }
+
+    function startNewClassNextYear() {
+      openConfirmModal(
+        'Start New Class (Next Year)?',
+        'This clears all student names, separation groups, seat assignments, and job history so you can enter next year’s class—while keeping your exact custom furniture floorplan intact!',
+        function () {
+          state.roster = [];
+          state.separationGroups = [];
+          state.furniture.forEach(p => {
+            p.seats.forEach(s => {
+              if ('workingStudent' in s) s.workingStudent = null;
+              if ('teachingStudent' in s) s.teachingStudent = null;
+            });
+          });
+          state.currentJobs = {};
+          state.history = {};
+          state.weeksLogged = 0;
+          state.jobsLocked = false;
+          activeSelection = null;
+          persistState();
+          renderAll();
+          showToast('Cleared for next year! Your furniture arrangement was kept intact.', 'success');
+        }
+      );
+    }
+
+    function addSeparationGroup() {
+      state.separationGroups.push({
+        id: 'sep_' + Date.now(),
+        name: 'Keep Separate #' + (state.separationGroups.length + 1),
+        members: []
+      });
+      persistState();
+      renderAll();
+    }
+
+    function updateSeparationGroupName(id, val) {
+      const g = state.separationGroups.find(x => x.id === id);
+      if (g && val.trim()) {
+        g.name = val.trim();
+        persistState();
+      }
+    }
+
+    function removeSeparationGroup(id) {
+      state.separationGroups = state.separationGroups.filter(x => x.id !== id);
+      persistState();
+      renderAll();
+    }
+
+    function addStudentToSepGroup(groupId, studentName) {
+      if (!studentName) return;
+      const g = state.separationGroups.find(x => x.id === groupId);
+      if (g && !g.members.includes(studentName)) {
+        g.members.push(studentName);
+        persistState();
+        renderAll();
+      }
+    }
+
+    function removeStudentFromSepGroup(groupId, studentName) {
+      const g = state.separationGroups.find(x => x.id === groupId);
+      if (g) {
+        g.members = g.members.filter(m => m !== studentName);
+        persistState();
+        renderAll();
+      }
+    }
+
+    function clearRotationHistory() {
+      openConfirmModal(
+        'Clear Rotation History?',
+        'Reset all logged weeks, wobbly chair counts, and completed job badges for the current roster?',
+        function () {
+          state.history = {};
+          state.roster.forEach(ensureHistory);
+          state.weeksLogged = 0;
+          state.jobsLocked = false;
+          persistState();
+          renderAll();
+          showToast('Rotation history reset.', 'info');
+        }
+      );
+    }
+
+    function exportBackup() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'classroom-command-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Backup file (.json) downloaded!', 'success');
+    }
+
+    function importBackup(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed && Array.isArray(parsed.roster)) {
+            normalizeAndLoadSnapshot(parsed);
+            persistState();
+            renderAll();
+            showToast('Backup restored successfully (' + state.roster.length + ' students)!', 'success');
+          } else {
+            showToast('Invalid backup JSON format.', 'error');
+          }
+        } catch (err) {
+          showToast('Error reading JSON file.', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // =========================================================================
+    // 12. RENDERING PIPELINE (FLOORPLAN + QUICK-ASSIGN SIDEBAR + TABS)
+    // =========================================================================
+    function findConflicts(plan) {
+      const forbidden = buildForbiddenMap();
+      const conflicted = new Set();
+      const prop = plan === 'working' ? 'workingStudent' : 'teachingStudent';
+
+      state.furniture.forEach(piece => {
+        if (piece.space !== plan) return;
+        const people = piece.seats.map(s => s[prop]).filter(Boolean);
+        for (let i = 0; i < people.length; i++) {
+          for (let j = i + 1; j < people.length; j++) {
+            if (forbidden[people[i]] && forbidden[people[i]].has(people[j])) {
+              conflicted.add(people[i]);
+              conflicted.add(people[j]);
+            }
+          }
+        }
+      });
+
+      return conflicted;
+    }
+
+    function renderQuickAssignSidebar() {
+      const tabT = document.getElementById('qa-tab-teaching');
+      const tabW = document.getElementById('qa-tab-working');
+      tabT.className = 'pill-btn ' + (quickAssignFilter === 'teaching' ? 'active-teaching' : '');
+      tabW.className = 'pill-btn ' + (quickAssignFilter === 'working' ? 'active-working' : '');
+
+      const body = document.getElementById('quick-assign-body');
+      const items = state.furniture.filter(p => p.space === quickAssignFilter);
+      const prop = quickAssignFilter === 'working' ? 'workingStudent' : 'teachingStudent';
+
+      body.innerHTML = items.map(piece => {
+        let cardCls = 'qa-zone-card';
+        let icon = '📝';
+        if (piece.category === 'couch') { cardCls += ' couch-card'; icon = '🛋️'; }
+        else if (piece.category === 'beanbag') { cardCls += ' bag-card'; icon = '🫘'; }
+        else if (piece.category === 'pillow') { cardCls += ' pillow-card'; icon = '🪑'; }
+
+        const seatRows = piece.seats.map((seat, idx) => {
+          const val = seat[prop] || '';
+          const spotTag = piece.category === 'table'
+            ? (seat.chairType === 'wobbly' ? '⚡ Wobbly' : '● Blue')
+            : ('Spot ' + (idx + 1));
+
+          const opts = '<option value="">+ Add Student...</option>' +
+            state.roster.map(name => `<option value="${escapeHTML(name)}" ${name === val ? 'selected' : ''}>${escapeHTML(name)}</option>`).join('');
+
+          return `
+            <div class="qa-seat-row">
+              <span class="qa-seat-label">${spotTag}</span>
+              <select class="qa-select ${val ? 'assigned' : ''}"
+                      onchange="placeStudentAtSeat(this.value, '${piece.id}', ${idx})">
+                ${opts}
+              </select>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="${cardCls}">
+            <div class="qa-zone-title">
+              <span>${icon} ${escapeHTML(piece.label)}</span>
+              <span style="font-size:11px; color:var(--muted);">${piece.seats.filter(s => s[prop]).length}/${piece.seats.length}</span>
+            </div>
+            ${seatRows}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderFloorplan() {
+      const wSeats = collectSeats('working');
+      const tSeats = collectSeats('teaching');
+      const workingConflicts = findConflicts('working');
+      const teachingConflicts = findConflicts('teaching');
+
+      const wSeated = wSeats.filter(x => x.seat.workingStudent).length;
+      const tSeated = tSeats.filter(x => x.seat.teachingStudent).length;
+      const wobblyUsed = wSeats.filter(x => x.seat.chairType === 'wobbly').length;
+      const pillowCount = state.furniture.filter(p => p.type === 'floor_pillow').length;
+      const totalConflicts = workingConflicts.size + teachingConflicts.size;
+
+      document.getElementById('pillow-count-badge').textContent = pillowCount;
+      document.getElementById('stat-working').textContent = wSeated + ' / ' + wSeats.length + ' Seated';
+      document.getElementById('stat-wobbly').textContent = wobblyUsed + ' / 5 Active';
+      document.getElementById('stat-teaching').textContent = tSeated + ' / ' + tSeats.length + ' Seated';
+
+      const sepVal = document.getElementById('stat-separation');
+      const sepIcon = document.getElementById('stat-sep-icon');
+      if (totalConflicts === 0) {
+        sepVal.textContent = 'All Clear (0)';
+        sepVal.style.color = 'var(--sage-600)';
+        sepIcon.textContent = '✓';
+        sepIcon.style.background = 'var(--sage-100)';
+        sepIcon.style.color = 'var(--sage-600)';
+      } else {
+        sepVal.textContent = totalConflicts + ' Student Conflict!';
+        sepVal.style.color = 'var(--rose-600)';
+        sepIcon.textContent = '!';
+        sepIcon.style.background = 'var(--rose-100)';
+        sepIcon.style.color = 'var(--rose-600)';
+      }
+
+      const selPiece = state.furniture.find(p => p.id === selectedPieceId);
+      if (selPiece) {
+        document.getElementById('selected-piece-badge').textContent = 'Selected: ' + selPiece.label + ' (' + selPiece.rot + '°)';
+        document.getElementById('angle-slider').value = selPiece.rot;
+        document.getElementById('angle-readout').textContent = selPiece.rot + '°';
+      }
+
+      document.getElementById('grid-snap-toggle').checked = state.snapToGrid;
+      updateSelectionBanner();
+
+      // Render Student Roster Bar above the floorplan
+      const currentSeats = activePlan === 'working' ? wSeats : tSeats;
+      const prop = activePlan === 'working' ? 'workingStudent' : 'teachingStudent';
+      const seatedSet = new Set(currentSeats.map(x => x.seat[prop]).filter(Boolean));
+
+      document.getElementById('roster-dock-title').textContent =
+        activePlan === 'working' ? 'Student Roster Bar (Working Space):' : 'Student Roster Bar (Teaching Space):';
+
+      const dockHost = document.getElementById('roster-dock-pills');
+      if (state.roster.length === 0) {
+        dockHost.innerHTML = '<span style="font-size:12.5px; color:var(--muted); font-style:italic;">Roster is empty. Click "📋 Bulk Paste / Edit Names" or click "+ Add Name" on any couch/bean bag!</span>';
+      } else {
+        dockHost.innerHTML = state.roster.map(name => {
+          const isSeated = seatedSet.has(name);
+          const isSelected = activeSelection && activeSelection.type === 'roster' && activeSelection.studentName === name;
+          const cls = 'roster-pill ' + (isSelected ? 'selected' : (isSeated ? 'seated' : 'unseated'));
+          const prefix = isSeated ? '✓' : '+';
+          return `
+            <button class="${cls}" onclick="selectRosterStudent('${escapeHTML(name)}')">
+              <span>${prefix} ${escapeHTML(name)}</span>
+            </button>
+          `;
+        }).join('');
+      }
+
+      // Render ALL interactive seats across BOTH Tables AND Couches/2-Seat Bean Bags/Pillows at once
+      const host = document.getElementById('furniture-layer');
+      host.innerHTML = state.furniture.map(piece => {
+        const isSelected = interactionMode === 'arrange' && selectedPieceId === piece.id;
+        const counterRot = -piece.rot;
+        const pieceProp = piece.space === 'working' ? 'workingStudent' : 'teachingStudent';
+        const pieceConflicts = piece.space === 'working' ? workingConflicts : teachingConflicts;
+
+        const handleHTML = isSelected
+          ? `<div class="rotate-stem"></div>
+             <div class="rotate-knob"
+                  title="Drag to rotate ${escapeHTML(piece.label)}"
+                  style="transform: rotate(${counterRot}deg);"
+                  onpointerdown="beginFurnitureRotate(event, '${piece.id}')">↻</div>`
+          : '';
+
+        const seatsHTML = piece.seats.map((seat, sIdx) => {
+          const student = seat[pieceProp];
+          const isSeatSelected = interactionMode === 'seats' &&
+            activeSelection &&
+            activeSelection.type === 'seat' &&
+            activeSelection.pieceId === piece.id &&
+            activeSelection.seatIdx === sIdx;
+
+          const hasConflict = student && pieceConflicts.has(student);
+          const isWobbly = seat.chairType === 'wobbly';
+          const isTable = piece.category === 'table';
+
+          let cls = 'seat-pill';
+          if (!student) {
+            cls += ' empty-spot' + (isTable ? ' table-empty' : '');
+            if (activeSelection && interactionMode === 'seats') cls += ' awaiting-placement';
+          } else if (hasConflict) {
+            cls += ' conflict-spot';
+          } else if (isWobbly) {
+            cls += ' wobbly-spot';
+          } else if (piece.space === 'teaching') {
+            cls += ' teaching-spot';
+          }
+          if (isSeatSelected) cls += ' selected-seat';
+
+          const dotHTML = isTable
+            ? `<button class="chair-toggle-dot ${isWobbly ? 'wobbly' : 'blue'}"
+                       title="Click to toggle Wobbly vs Blue Chair"
+                       onclick="onToggleChairDot(event, '${piece.id}', ${sIdx})">${isWobbly ? '⚡' : ''}</button>`
+            : '';
+
+          const unassignHTML = (student && interactionMode === 'seats')
+            ? `<button class="unassign-x" title="Remove ${escapeHTML(student)}" onclick="unassignSeat(event, '${piece.id}', ${sIdx})">×</button>`
+            : '';
+
+          return `
+            <div class="${cls}"
+                 onclick="handleSeatClick(event, '${piece.id}', ${sIdx})"
+                 style="left:${seat.rx}px; top:${seat.ry}px; transform:translate(-50%,-50%) rotate(${counterRot}deg);">
+              ${dotHTML}
+              <span>${hasConflict ? '⚠️ ' : ''}${student ? escapeHTML(student) : '+ Add Name'}</span>
+              ${unassignHTML}
+            </div>
+          `;
+        }).join('');
+
+        const modeClass = interactionMode === 'arrange' ? 'arrange-cursor' : '';
+        const selClass = isSelected ? 'selected-piece' : '';
+
+        return `
+          <div id="piece-el-${piece.id}"
+               class="furniture-node ${modeClass} ${selClass}"
+               onpointerdown="beginFurnitureMove(event, '${piece.id}')"
+               style="left:${piece.x}px; top:${piece.y}px; width:${piece.w}px; height:${piece.h}px; transform:rotate(${piece.rot}deg);">
+            ${handleHTML}
+            ${renderPieceHTML(piece)}
+            ${seatsHTML}
+          </div>
+        `;
+      }).join('');
+
+      renderQuickAssignSidebar();
+    }
+
+    function renderJobsTab() {
+      document.getElementById('jobs-locked-badge').classList.toggle('hidden', !state.jobsLocked);
+
+      const grid = document.getElementById('jobs-grid');
+      grid.innerHTML = CLASS_JOBS.map(job => {
+        const assigned = state.currentJobs[job.id] || '';
+        const hList = assigned && state.history[assigned] ? state.history[assigned].jobsDone : [];
+        const timesDone = hList.filter(id => id === job.id).length;
+
+        const opts = '<option value="">-- Unassigned --</option>' +
+          state.roster.map(n => `<option value="${escapeHTML(n)}" ${n === assigned ? 'selected' : ''}>${escapeHTML(n)}</option>`).join('');
+
+        return `
+          <div class="job-card">
+            <div style="flex:1; min-width:0;">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-size:16px; font-weight:800;">${escapeHTML(job.title)}</span>
+                ${assigned
+                  ? `<span class="badge ${timesDone === 0 ? 'badge-sage' : 'badge-amber'}">${timesDone === 0 ? 'New Role!' : 'Done ' + timesDone + 'x before'}</span>`
+                  : ''}
+              </div>
+              <p style="margin:3px 0 0; font-size:12px; color:var(--muted);">${escapeHTML(job.desc)}</p>
+              <select class="job-select" onchange="overrideJobStudent('${job.id}', this.value)">${opts}</select>
+            </div>
+            <div class="job-icon-box" style="background:${job.bg};">${job.icon}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('weeks-logged-badge').textContent = state.weeksLogged + ' Week' + (state.weeksLogged === 1 ? '' : 's') + ' Logged';
+      const tbody = document.getElementById('history-table-body');
+
+      if (state.roster.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:18px; color:var(--muted);">No students in roster yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = state.roster.map(name => {
+        const h = state.history[name] || { wobblyCount: 0, blueCount: 0, couchCount: 0, beanBagCount: 0, pillowCount: 0, jobsDone: [] };
+        const badges = h.jobsDone.length > 0
+          ? h.jobsDone.map(jid => {
+              const j = CLASS_JOBS.find(x => x.id === jid);
+              return `<span class="badge badge-peach" style="margin:2px 3px 2px 0;">${escapeHTML(j ? j.title : jid)}</span>`;
+            }).join('')
+          : '<span style="color:var(--muted); font-style:italic;">None yet</span>';
+
+        return `
+          <tr>
+            <td style="font-weight:800;">${escapeHTML(name)}</td>
+            <td style="font-weight:800; color:var(--sage-600);">${h.jobsDone.length}</td>
+            <td>⚡ ${h.wobblyCount} • ● ${h.blueCount}</td>
+            <td>🛋️ ${h.couchCount} • 🫘 ${h.beanBagCount} • 🪑 ${h.pillowCount}</td>
+            <td>${badges}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderRosterTab() {
+      document.getElementById('roster-count').textContent = state.roster.length;
+
+      const chipsHost = document.getElementById('roster-chips-list');
+      if (state.roster.length === 0) {
+        chipsHost.innerHTML = '<p style="font-size:13px; color:var(--muted); font-style:italic;">Roster is empty. Paste or type student names above!</p>';
+      } else {
+        chipsHost.innerHTML = state.roster.map(name => `
+          <div class="student-chip">
+            <input type="text" value="${escapeHTML(name)}"
+                   style="width:${Math.max(name.length + 1, 5)}ch;"
+                   title="Click to edit student name"
+                   onchange="renameStudent('${escapeHTML(name)}', this.value)"
+                   onkeydown="if(event.key==='Enter') this.blur()">
+            <button style="background:transparent; color:#94A3B8; font-weight:900; padding:0 2px;"
+                    title="Remove student"
+                    onclick="deleteStudent('${escapeHTML(name)}')">×</button>
+          </div>
+        `).join('');
+      }
+
+      const sepHost = document.getElementById('separation-groups-list');
+      if (state.separationGroups.length === 0) {
+        sepHost.innerHTML = '<p style="font-size:13px; color:var(--muted); font-style:italic;">No separation groups configured.</p>';
+      } else {
+        sepHost.innerHTML = state.separationGroups.map(grp => {
+          const available = state.roster.filter(s => !grp.members.includes(s));
+          const opts = '<option value="">+ Add student to separate...</option>' +
+            available.map(s => `<option value="${escapeHTML(s)}">${escapeHTML(s)}</option>`).join('');
+
+          return `
+            <div class="sep-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
+                <input type="text" value="${escapeHTML(grp.name)}"
+                       style="border:none; background:transparent; font-weight:800; font-size:14px; color:var(--ink); width:75%;"
+                       onchange="updateSeparationGroupName('${grp.id}', this.value)">
+                <button class="btn btn-rose btn-sm" onclick="removeSeparationGroup('${grp.id}')">Delete</button>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
+                ${grp.members.map(m => `
+                  <span class="badge" style="background:var(--rose-100); color:#9F1239; padding:4px 9px; font-size:12px;">
+                    ${escapeHTML(m)}
+                    <button style="background:transparent; color:#9F1239; font-weight:900; margin-left:3px;"
+                            onclick="removeStudentFromSepGroup('${grp.id}', '${escapeHTML(m)}')">×</button>
+                  </span>
+                `).join('')}
+              </div>
+              <select class="input-field" style="padding:6px 10px; font-size:12px;" onchange="addStudentToSepGroup('${grp.id}', this.value)">
+                ${opts}
+              </select>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function setProjectorView(mode) {
+      projectorViewMode = mode;
+      document.getElementById('proj-btn-split').className = 'pill-btn ' + (mode === 'split' ? 'active-dark' : '');
+      document.getElementById('proj-btn-seats').className = 'pill-btn ' + (mode === 'seats' ? 'active-dark' : '');
+      document.getElementById('proj-btn-jobs').className = 'pill-btn ' + (mode === 'jobs' ? 'active-dark' : '');
+
+      document.getElementById('projector-seats-section').classList.toggle('hidden', mode === 'jobs');
+      document.getElementById('projector-jobs-section').classList.toggle('hidden', mode === 'seats');
+    }
+
+    function setProjectorSpace(space) {
+      projectorSpace = space;
+      document.getElementById('proj-space-working').className = 'pill-btn ' + (space === 'working' ? 'active-working' : '');
+      document.getElementById('proj-space-teaching').className = 'pill-btn ' + (space === 'teaching' ? 'active-teaching' : '');
+      renderProjectorTab();
+    }
+
+    function renderProjectorTab() {
+      const prop = projectorSpace === 'working' ? 'workingStudent' : 'teachingStudent';
+      const zones = state.furniture.filter(p => p.space === projectorSpace);
+
+      document.getElementById('projector-zones-grid').innerHTML = zones.map(z => {
+        const occupants = z.seats.map(s => {
+          if (!s[prop]) return null;
+          if (projectorSpace === 'working') {
+            return (s.chairType === 'wobbly' ? '⚡ ' : '● ') + s[prop];
+          }
+          return s[prop];
+        }).filter(Boolean);
+
+        return `
+          <div class="proj-zone-card">
+            <div style="font-size:15px; font-weight:900; color:${projectorSpace === 'working' ? 'var(--peach-600)' : 'var(--indigo-600)'}; margin-bottom:8px;">
+              ${escapeHTML(z.label)}
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              ${occupants.length > 0
+                ? occupants.map(o => `<span class="badge badge-peach" style="font-size:13px; padding:5px 10px;">${escapeHTML(o)}</span>`).join('')
+                : '<span style="font-size:12px; color:var(--muted); font-style:italic;">Open</span>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('proj-week-label').textContent = 'Week #' + (state.weeksLogged + 1) + ' Classroom Crew';
+      document.getElementById('proj-jobs-grid').innerHTML = CLASS_JOBS.map(job => {
+        const student = state.currentJobs[job.id] || 'Open';
+        return `
+          <div class="poster-job-tile">
+            <div>
+              <div class="poster-job-name">${escapeHTML(job.title)}</div>
+              <div class="poster-student-pill">${escapeHTML(student)}</div>
+            </div>
+            <div style="font-size:34px;">${job.icon}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAll() {
+      renderFloorplan();
+      renderJobsTab();
+      renderRosterTab();
+      renderProjectorTab();
+      updateStorageCaption();
+    }
+
+    // =========================================================================
+    // 13. NAVIGATION, TOASTS & CUSTOM CONFIRM MODAL
+    // =========================================================================
+    function switchTab(tab) {
+      ['floorplan', 'jobs', 'roster', 'projector'].forEach(id => {
+        document.getElementById('view-' + id).classList.toggle('hidden', id !== tab);
+        document.getElementById('tab-btn-' + id).classList.toggle('active', id === tab);
+      });
+    }
+
+    function showToast(msg, type) {
+      const host = document.getElementById('toast-container');
+      const bgMap = { success: '#3A664D', error: '#E11D48', info: '#242120' };
+      const el = document.createElement('div');
+      el.className = 'toast-item';
+      el.style.background = bgMap[type] || bgMap.info;
+      el.textContent = msg;
+      host.appendChild(el);
+
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(8px)';
+        setTimeout(() => el.remove(), 260);
+      }, 3000);
+    }
+
+    function openConfirmModal(title, message, onConfirm) {
+      const modal = document.getElementById('confirm-modal');
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-message').textContent = message;
+      modal.classList.remove('hidden');
+
+      const close = () => modal.classList.add('hidden');
+      document.getElementById('confirm-cancel-btn').onclick = close;
+      document.getElementById('confirm-ok-btn').onclick = function () {
+        close();
+        onConfirm();
+      };
+    }
+
+    // Global Pointer & Startup Listeners
+    window.addEventListener('pointermove', handleGlobalPointerMove);
+    window.addEventListener('pointerup', handleGlobalPointerUp);
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
